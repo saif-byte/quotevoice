@@ -43,6 +43,7 @@ export interface RawRoom {
   windows?: number | null
   prep?: Prep | null
   wallpaper?: boolean | null
+  wallpaperBorder?: boolean | null
   colorChange?: boolean | null
   coats?: number | null
 }
@@ -73,6 +74,8 @@ export interface Room {
   windows: number
   prep: Prep
   wallpaper: boolean
+  wallpaperBorder: boolean
+  /** Dark or bold walls going lighter: one extra coat on the walls only. */
   colorChange: boolean
   coats: number
 }
@@ -96,6 +99,7 @@ export interface RateCard {
   prepLightPerRoom: number
   prepHeavyPerRoom: number
   wallpaperPerSqFt: number
+  wallpaperBorderPerLinFt: number
   paintPerGallon: number
   coverageSqFtPerGallon: number
   minimumJob: number

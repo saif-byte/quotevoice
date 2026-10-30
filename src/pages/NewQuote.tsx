@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { Link, useBlocker, useNavigate, useParams } from 'react-router-dom'
 import { useSpeech } from '../hooks/useSpeech'
 import { extractJob } from '../lib/extract'
 import { newId } from '../lib/normalize'
@@ -37,6 +37,19 @@ export function NewQuote() {
   const [number] = useState(existing?.number ?? nextNumber())
 
   const markStarted = () => setStartedAt((s) => s ?? new Date().toISOString())
+
+  // ---- unsaved-work protection ----
+  const snapshot = JSON.stringify({ transcript, job, lines, discount })
+  const [initialSnapshot] = useState(snapshot)
+  const savedRef = useRef(false)
+  const dirty = snapshot !== initialSnapshot && !savedRef.current
+  const blocker = useBlocker(({ currentLocation, nextLocation }) => dirty && !savedRef.current && currentLocation.pathname !== nextLocation.pathname)
+  useEffect(() => {
+    if (!dirty) return
+    const warn = (e: BeforeUnloadEvent) => e.preventDefault()
+    window.addEventListener('beforeunload', warn)
+    return () => window.removeEventListener('beforeunload', warn)
+  }, [dirty])
 
   const speech = useSpeech((text) => {
     if (!text) return
@@ -96,10 +109,14 @@ export function NewQuote() {
 
   function save(finalize: boolean) {
     if (!job) return
-    const status = finalize ? (existing && existing.status !== 'draft' ? existing.status : 'sent') : 'draft'
+    // Editing a finished quote keeps its status (Open, Won or Lost); it never turns back into a draft.
+    const status = existing && existing.status !== 'draft' ? existing.status : finalize ? 'sent' : 'draft'
     saveQuote(buildQuote(status))
+    savedRef.current = true
     navigate(`/quotes/${quoteId}`)
   }
+
+  const isFinished = !!existing && existing.status !== 'draft'
 
   const stepIndex = STEPS.findIndex((s) => s.id === step)
 
@@ -122,6 +139,35 @@ export function NewQuote() {
       </ol>
 
       {notice && <div className="callout warn" role="status">{notice}</div>}
+
+      {blocker.state === 'blocked' && (
+        <div className="modal-backdrop" role="presentation">
+          <div className="modal" role="alertdialog" aria-modal="true" aria-labelledby="leave-title">
+            <h2 id="leave-title">Leave without saving?</h2>
+            <p>{isFinished ? `Your changes to ${number} haven't been saved.` : "This quote hasn't been saved yet. If you leave now, it will be lost."}</p>
+            <div className="modal-actions">
+              <button className="btn" onClick={() => blocker.reset?.()} autoFocus>
+                Keep editing
+              </button>
+              {job && !isFinished && (
+                <button
+                  className="btn"
+                  onClick={() => {
+                    saveQuote(buildQuote('draft'))
+                    savedRef.current = true
+                    blocker.proceed?.()
+                  }}
+                >
+                  Save as draft and leave
+                </button>
+              )}
+              <button className="btn danger" onClick={() => blocker.proceed?.()}>
+                Leave without saving
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {step === 'capture' && (
         <section className="panel capture">
@@ -186,8 +232,8 @@ export function NewQuote() {
 
           <div className="actions">
             <span className="muted small">
-              Reading with: {aiOn ? `AI (${settings.ai.geminiModel})` : 'offline parser'} ·{' '}
-              <Link to="/settings">change</Link>
+              {aiOn ? 'Your note will be read by AI.' : 'Your note will be read by the built-in reader.'}{' '}
+              <Link to="/settings">{aiOn ? 'AI settings' : 'Turn on AI reading'}</Link>
             </span>
             <button type="button" className="btn primary" disabled={!transcript.trim() || busy} onClick={buildFromNote}>
               {busy ? 'Reading the note…' : 'Build quote'}
@@ -210,7 +256,7 @@ export function NewQuote() {
           onBack={() => setStep('job')}
           onDraft={() => save(false)}
           onFinalize={() => save(true)}
-          finalizeLabel={existing && existing.status !== 'draft' ? 'Save changes' : 'Finalize quote'}
+          finished={isFinished}
         />
       )}
     </div>
@@ -234,16 +280,18 @@ function JobStep(props: {
     const n = job.rooms.length + 1
     const room: Room = {
       id: `r${Date.now().toString(36)}`, name: `Room ${n}`, type: 'other', lengthFt: 12, widthFt: 12, heightFt: 8,
-      walls: true, ceiling: false, trim: false, doors: 0, windows: 0, prep: 'none', wallpaper: false, colorChange: false, coats: 2,
+      walls: true, ceiling: false, trim: false, doors: 0, windows: 0, prep: 'none', wallpaper: false, wallpaperBorder: false, colorChange: false, coats: 2,
     }
     setJob({ ...job, rooms: [...job.rooms, room] })
   }
+
+  const badRooms = job.rooms.filter((r) => !(r.lengthFt > 0 && r.widthFt > 0 && r.heightFt > 0))
 
   return (
     <section className="panel">
       <div className="panel-head">
         <h2>Here's what was heard</h2>
-        <span className={`badge ${props.extractor}`}>{props.extractor === 'gemini' ? 'Read by AI' : 'Read by offline parser'}</span>
+        <span className={`badge ${props.extractor}`}>{props.extractor === 'gemini' ? 'Read by AI' : 'Read by built-in reader'}</span>
       </div>
 
       {job.assumptions.length > 0 && (
@@ -274,7 +322,19 @@ function JobStep(props: {
 
       <div className="rooms">
         {job.rooms.map((r) => (
-          <RoomCard key={r.id} room={r} onChange={(p) => updateRoom(r.id, p)} onRemove={() => setJob({ ...job, rooms: job.rooms.filter((x) => x.id !== r.id) })} />
+          <RoomCard
+            key={r.id}
+            room={r}
+            onChange={(p) => updateRoom(r.id, p)}
+            onRemove={() =>
+              setJob({
+                ...job,
+                rooms: job.rooms.filter((x) => x.id !== r.id),
+                // Drop the warnings that belonged to the removed room.
+                assumptions: job.assumptions.filter((a) => !a.startsWith(`${r.name}:`)),
+              })
+            }
+          />
         ))}
       </div>
       <button type="button" className="btn ghost" onClick={addRoom}>
@@ -292,11 +352,17 @@ function JobStep(props: {
         </div>
       )}
 
+      {badRooms.length > 0 && (
+        <div className="callout warn" role="status">
+          {badRooms.map((r) => r.name).join(', ')}: length, width and height must be more than 0.
+        </div>
+      )}
+
       <div className="actions">
         <button type="button" className="btn ghost" onClick={props.onBack}>
           Back to note
         </button>
-        <button type="button" className="btn primary" onClick={props.onNext} disabled={job.rooms.length === 0}>
+        <button type="button" className="btn primary" onClick={props.onNext} disabled={job.rooms.length === 0 || badRooms.length > 0}>
           Price this job
         </button>
       </div>
@@ -315,7 +381,7 @@ function NumberInput(props: { label: string; value: number; onChange: (v: number
           value={Number.isFinite(props.value) ? props.value : ''}
           step={props.step ?? 1}
           min={props.min ?? 0}
-          onChange={(e) => props.onChange(e.target.value === '' ? 0 : Number(e.target.value))}
+          onChange={(e) => props.onChange(e.target.value === '' ? 0 : Math.max(props.min ?? 0, Number(e.target.value) || 0))}
         />
         {props.suffix && <span className="suffix">{props.suffix}</span>}
       </div>
@@ -361,12 +427,13 @@ function RoomCard({ room, onChange, onRemove }: { room: Room; onChange: (p: Part
             ['walls', 'Walls'],
             ['ceiling', 'Ceiling'],
             ['trim', 'Trim'],
-            ['colorChange', 'Color change (+1 coat)'],
+            ['colorChange', 'Covering a dark color (+1 coat on walls)'],
             ['wallpaper', 'Wallpaper removal'],
+            ['wallpaperBorder', 'Wallpaper border'],
           ] as const
         ).map(([key, label]) => (
-          <label key={key} className={`toggle ${room[key] ? 'on' : ''}`}>
-            <input type="checkbox" checked={room[key]} onChange={(e) => onChange({ [key]: e.target.checked })} />
+          <label key={key} className={`toggle ${room[key] ? "on" : ""}`}>
+            <input type="checkbox" checked={!!room[key]} onChange={(e) => onChange({ [key]: e.target.checked })} />
             {label}
           </label>
         ))}
@@ -386,10 +453,13 @@ function PriceStep(props: {
   onBack: () => void
   onDraft: () => void
   onFinalize: () => void
-  finalizeLabel: string
+  finished: boolean
 }) {
   const { lines, setLines, discount, setDiscount } = props
   const t = useMemo(() => totals(lines, props.taxPct, discount), [lines, props.taxPct, discount])
+  const negative = lines.some((l) => l.qty < 0 || l.rate < 0)
+  const zeroLines = lines.filter((l) => l.amount === 0).length
+  const canFinish = lines.length > 0 && !negative && t.total > 0
   const discountTooBig = !!discount && discount.value > 0 && (discount.type === 'percent' ? discount.value > 100 : discount.value > t.subtotal)
 
   const update = (i: number, patch: Partial<LineItem>) => {
@@ -397,6 +467,8 @@ function PriceStep(props: {
       lines.map((l, idx) => {
         if (idx !== i) return l
         const next = { ...l, ...patch }
+        next.qty = Math.max(0, next.qty)
+        next.rate = Math.max(0, next.rate)
         next.amount = roundMoney(next.qty * next.rate)
         return next
       }),
@@ -425,9 +497,18 @@ function PriceStep(props: {
         {lines.map((l, i) => (
           <div className="line" key={l.key}>
             <input aria-label="Description" value={l.description} onChange={(e) => update(i, { description: e.target.value })} />
-            <input aria-label="Quantity" type="number" inputMode="decimal" value={l.qty} onChange={(e) => update(i, { qty: Number(e.target.value) || 0 })} />
-            <input aria-label="Unit" value={l.unit} onChange={(e) => update(i, { unit: e.target.value })} />
-            <input aria-label="Rate" type="number" inputMode="decimal" step="0.01" value={l.rate} onChange={(e) => update(i, { rate: Number(e.target.value) || 0 })} />
+            <label className="cell">
+              <span className="m-label">Qty</span>
+              <input aria-label="Quantity" type="number" inputMode="decimal" min={0} value={l.qty} onChange={(e) => update(i, { qty: Number(e.target.value) || 0 })} />
+            </label>
+            <label className="cell">
+              <span className="m-label">Unit</span>
+              <input aria-label="Unit" value={l.unit} onChange={(e) => update(i, { unit: e.target.value })} />
+            </label>
+            <label className="cell">
+              <span className="m-label">Rate $</span>
+              <input aria-label="Rate" type="number" inputMode="decimal" min={0} step="0.01" value={l.rate} onChange={(e) => update(i, { rate: Number(e.target.value) || 0 })} />
+            </label>
             <span className="num amount">{formatMoney(l.amount)}</span>
             <button type="button" className="icon-btn" aria-label={`Remove ${l.description}`} onClick={() => setLines(lines.filter((_, idx) => idx !== i))}>
               ×
@@ -506,16 +587,25 @@ function PriceStep(props: {
         <dd className="grand">{formatMoney(t.total)}</dd>
       </dl>
 
+      {t.total <= 0 && lines.length > 0 && <p className="small warn-text">The total is $0. Check the quantities and rates before finishing.</p>}
+      {zeroLines > 0 && t.total > 0 && (
+        <p className="small muted">
+          {zeroLines} line{zeroLines > 1 ? 's are' : ' is'} $0.00 and will show on the quote that way. Remove {zeroLines > 1 ? 'them' : 'it'} if not needed.
+        </p>
+      )}
+
       <div className="actions">
         <button type="button" className="btn ghost" onClick={props.onBack}>
           Back to job
         </button>
         <span className="spacer" />
-        <button type="button" className="btn" onClick={props.onDraft}>
-          Save draft
-        </button>
-        <button type="button" className="btn primary" onClick={props.onFinalize} disabled={lines.length === 0}>
-          {props.finalizeLabel}
+        {!props.finished && (
+          <button type="button" className="btn" onClick={props.onDraft} disabled={lines.length === 0}>
+            Save draft
+          </button>
+        )}
+        <button type="button" className="btn primary" onClick={props.onFinalize} disabled={!canFinish}>
+          {props.finished ? 'Save changes' : 'Finish quote'}
         </button>
       </div>
     </section>

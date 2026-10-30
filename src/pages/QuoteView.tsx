@@ -12,7 +12,8 @@ export function QuoteView() {
   const { id } = useParams()
   const { quotes, settings, saveQuote, deleteQuote } = useStore()
   const navigate = useNavigate()
-  const [copied, setCopied] = useState(false)
+  const [copied, setCopied] = useState<'copied' | 'manual' | null>(null)
+  const [link, setLink] = useState<string | null>(null)
   const q = quotes.find((x) => x.id === id)
 
   if (!q) {
@@ -42,15 +43,20 @@ export function QuoteView() {
       decidedAt: status === 'won' || status === 'lost' ? new Date().toISOString() : undefined,
     })
 
+  // Always show the link on screen; copying to the clipboard is a bonus that some browsers block.
   async function copyLink() {
     const url = shareUrl(shared)
+    setLink(url)
+    let ok = false
     try {
-      await navigator.clipboard.writeText(url)
+      await Promise.race([
+        navigator.clipboard.writeText(url).then(() => (ok = true)),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 1500)),
+      ])
     } catch {
-      window.prompt('Copy this link:', url)
+      ok = false
     }
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2500)
+    setCopied(ok ? 'copied' : 'manual')
   }
 
   return (
@@ -66,13 +72,13 @@ export function QuoteView() {
         </div>
         <div className="head-actions">
           {q.status === 'draft' ? (
-            <button className="btn primary" onClick={() => setStatus('sent')}>
-              Finalize quote
+            <button className="btn primary" onClick={() => setStatus('sent')} disabled={final.total <= 0}>
+              Finish quote
             </button>
           ) : (
             <>
               <button className="btn primary" onClick={copyLink}>
-                {copied ? 'Link copied' : 'Copy customer link'}
+                {copied === 'copied' ? 'Link copied' : 'Copy customer link'}
               </button>
               <button className="btn" onClick={() => window.print()}>
                 Print or save PDF
@@ -81,6 +87,26 @@ export function QuoteView() {
           )}
         </div>
       </div>
+
+      {!settings.business.name && (
+        <div className="callout warn no-print">
+          This quote has no business name yet. <Link to="/settings">Add your business details</Link> before sending it.
+        </div>
+      )}
+
+      {link && (
+        <div className={`callout share-box no-print ${copied === 'copied' ? 'ok' : ''}`} role="status">
+          <strong>
+            {copied === 'copied'
+              ? 'Link copied. Paste it into a text or email to your customer.'
+              : "Your browser didn't allow copying. Select the link below and copy it."}
+          </strong>
+          <input readOnly value={link} onFocus={(e) => e.currentTarget.select()} aria-label="Customer link" />
+          <a href={link} target="_blank" rel="noreferrer" className="small">
+            Preview what the customer sees
+          </a>
+        </div>
+      )}
 
       <div className="quote-layout">
         <QuoteDocument q={shared} />
@@ -92,7 +118,7 @@ export function QuoteView() {
               <div className="seg">
                 {(['sent', 'won', 'lost'] as const).map((s) => (
                   <button key={s} className={q.status === s ? 'on' : ''} onClick={() => setStatus(s)} aria-pressed={q.status === s}>
-                    {s === 'sent' ? 'Waiting' : STATUS_LABEL[s]}
+                    {STATUS_LABEL[s]}
                   </button>
                 ))}
               </div>
@@ -100,21 +126,10 @@ export function QuoteView() {
           )}
 
           <section className="side-block">
-            <h2>Behind this quote</h2>
+            <h2>Summary</h2>
             <dl className="facts">
-              <dt>Read by</dt>
-              <dd>{q.extractor === 'gemini' ? 'AI (Gemini)' : 'Offline parser'}</dd>
-              <dt>Time to quote</dt>
-              <dd>{formatMinutes(minutesToQuote(q))}</dd>
-              <dt>AI lines kept as-is</dt>
-              <dd>
-                {stats.unchanged} of {stats.total}
-              </dd>
-              <dt>AI draft total</dt>
-              <dd>
-                {formatMoney(aiTotal)}
-                {wasOverridden(q, settings.rates.taxPct) && <span className="flag"> changed by over 10%</span>}
-              </dd>
+              <dt>Subtotal</dt>
+              <dd>{formatMoney(final.subtotal)}</dd>
               {final.discount > 0 && q.discount && (
                 <>
                   <dt>Discount given</dt>
@@ -124,9 +139,27 @@ export function QuoteView() {
                   </dd>
                 </>
               )}
-              <dt>Final total</dt>
+              <dt>Total</dt>
               <dd>{formatMoney(final.total)}</dd>
+              <dt>Time to quote</dt>
+              <dd>{formatMinutes(minutesToQuote(q))}</dd>
             </dl>
+            <details className="ai-check">
+              <summary>How the note was read</summary>
+              <dl className="facts">
+                <dt>Read by</dt>
+                <dd>{q.extractor === 'gemini' ? 'AI (Gemini)' : 'Built-in reader'}</dd>
+                <dt>Lines you kept unchanged</dt>
+                <dd>
+                  {stats.unchanged} of {stats.total}
+                </dd>
+                <dt>First draft total</dt>
+                <dd>
+                  {formatMoney(aiTotal)}
+                  {wasOverridden(q, settings.rates.taxPct) && <span className="flag-quiet">You adjusted it by over 10%</span>}
+                </dd>
+              </dl>
+            </details>
           </section>
 
           {q.job.assumptions.length > 0 && (

@@ -17,6 +17,7 @@ export interface SharedQuote {
   taxPct: number
   notes: string[]
   discount?: Discount
+  paintByCustomer?: boolean
 }
 
 export function encodeShared(q: SharedQuote): string {

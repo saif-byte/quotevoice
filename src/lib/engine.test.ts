@@ -5,12 +5,25 @@ import { normalizeJob } from './normalize'
 import { coatFactor, DEFAULT_RATES, discountAmount, priceJob, totals, wallArea } from './pricing'
 import { buildSampleQuotes } from './seed'
 import { decodeShared, encodeShared } from './share'
-import { wordsToNumbers } from './parser'
+import { applyCorrections, wordsToNumbers } from './parser'
 
 describe('wordsToNumbers', () => {
   it('converts spoken numbers', () => {
     expect(wordsToNumbers('twelve by fourteen, nine foot, twenty two')).toBe('12 by 14, 9 foot, 22')
     expect(wordsToNumbers('a couple of doors')).toBe('2 doors')
+  })
+})
+
+describe('applyCorrections', () => {
+  it('replaces the corrected words', () => {
+    expect(applyCorrections('office is 14 by 12 no wait 12 by 12, walls')).toBe('office is 12 by 12, walls')
+    expect(applyCorrections('2 doors actually 3 doors')).toBe('3 doors')
+  })
+  it('leaves non-numeric "actually" alone except the filler word', () => {
+    expect(applyCorrections("it's actually pretty clean")).toBe("it's pretty clean")
+  })
+  it('converts halves', () => {
+    expect(wordsToNumbers('three and a half by twenty')).toBe('3.5 by 20')
   })
 })
 
@@ -53,6 +66,27 @@ describe('pricing', () => {
     expect(walls.qty).toBe(316)
     expect(walls.amount).toBeCloseTo(316 * 1.15, 2)
     expect(items.some((i) => i.key === 'job:paint')).toBe(true)
+  })
+
+  it('adds the color-change coat to walls only', () => {
+    const j = normalizeJob({ coats: 2, heightFt: 8, rooms: [{ name: 'Den', type: 'family_room', lengthFt: 12, widthFt: 10, walls: true, ceiling: true, colorChange: true }] })
+    const items = priceJob(j, DEFAULT_RATES)
+    expect(items.find((i) => i.key === 'r1:walls')!.description).toContain('3 coats')
+    expect(items.find((i) => i.key === 'r1:ceiling')!.description).toContain('2 coats')
+    expect(items.find((i) => i.key === 'r1:ceiling')!.rate).toBe(DEFAULT_RATES.ceilingPerSqFt)
+  })
+
+  it('prices a wallpaper border by the linear foot', () => {
+    const j = normalizeJob({ heightFt: 8, rooms: [{ name: 'Kids room', type: 'kids_bedroom', lengthFt: 12, widthFt: 10, walls: true, wallpaperBorder: true }] })
+    const border = priceJob(j, DEFAULT_RATES).find((i) => i.key === 'r1:border')!
+    expect(border.qty).toBe(44)
+    expect(border.unit).toBe('lin ft')
+  })
+
+  it('skips rooms with no size instead of pricing 0 sq ft', () => {
+    const j = normalizeJob({ heightFt: 8, rooms: [{ name: 'X', type: 'bedroom', lengthFt: 12, widthFt: 10, walls: true }] })
+    j.rooms[0].lengthFt = 0
+    expect(priceJob(j, DEFAULT_RATES).some((i) => i.qty === 0)).toBe(false)
   })
 
   it('applies the minimum job charge', () => {

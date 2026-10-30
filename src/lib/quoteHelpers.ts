@@ -14,12 +14,13 @@ export function toShared(q: Quote, settings: Settings): SharedQuote {
     // Internal notes ("mentioned but not priced") stay in the app, not on the customer copy.
     notes: [],
     discount: q.discount && q.discount.value > 0 ? q.discount : undefined,
+    paintByCustomer: !q.job.paintIncluded,
   }
 }
 
 export const STATUS_LABEL: Record<Quote['status'], string> = {
   draft: 'Draft',
-  sent: 'Sent',
+  sent: 'Open',
   won: 'Won',
   lost: 'Lost',
 }

@@ -3,7 +3,7 @@ import { normalizeJob } from '../src/lib/normalize'
 import { parseLocally } from '../src/lib/extract'
 import { extractWithGemini } from '../src/lib/gemini'
 import { scoreCase, type CaseScore } from '../src/lib/evaluate'
-import { CASES } from './cases'
+import { CASES, FIELD_CASES, HELD_OUT_CASES } from './cases'
 
 /**
  * Extraction eval. Run with `npm run eval`.
@@ -26,14 +26,18 @@ function report(name: string, scores: CaseScore[]): number {
 describe('extraction eval', () => {
   it('offline parser', () => {
     const scores = CASES.map((c) => scoreCase(c, parseLocally(c.note).job))
-    const pct = report('Offline parser', scores)
+    const pct = report('Offline parser: original cases', scores)
     expect(pct).toBeGreaterThanOrEqual(85)
+    const field = FIELD_CASES.map((c) => scoreCase(c, parseLocally(c.note).job))
+    report('Offline parser: field-test cases', field)
+    const held = HELD_OUT_CASES.map((c) => scoreCase(c, parseLocally(c.note).job))
+    report('Offline parser: held-out cases (not tuned on)', held)
   })
 
   const key = process.env.GEMINI_API_KEY
   it.skipIf(!key)('gemini', async () => {
     const scores: CaseScore[] = []
-    for (const c of CASES) {
+    for (const c of [...CASES, ...FIELD_CASES, ...HELD_OUT_CASES]) {
       const raw = await extractWithGemini(c.note, key!, process.env.GEMINI_MODEL || undefined)
       scores.push(scoreCase(c, normalizeJob(raw)))
     }

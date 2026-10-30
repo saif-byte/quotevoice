@@ -38,13 +38,23 @@ export function Dashboard() {
     )
   }
 
-  const kpis: { label: string; value: string; note: string; target?: string }[] = [
-    { label: 'Quotes sent', value: String(m.sentCount), note: m.draftCount ? `${m.draftCount} draft${m.draftCount > 1 ? 's' : ''} waiting` : 'No drafts waiting' },
-    { label: 'Waiting on an answer', value: formatMoney(m.openValue), note: 'Value of sent quotes not yet won or lost' },
-    { label: 'Won', value: formatMoney(m.wonValue), note: m.decided ? `Win rate ${pct(m.winRate)} of ${m.decided} decided` : 'No decisions yet' },
-    { label: 'Time to quote', value: formatMinutes(m.medianMinutes), note: 'Median, from first word to finalized', target: 'Target under 3 min' },
-    { label: 'AI lines kept as-is', value: pct(m.editFreeRate), note: 'Share of AI line items sent without edits', target: 'Target 80%' },
-    { label: 'Totals changed >10%', value: pct(m.overrideRate), note: 'Quotes where you moved the AI total a lot', target: 'Target under 20%' },
+  const openQuotes = quotes.filter((q) => q.status === 'sent')
+  // The painter's numbers: money, not software metrics.
+  const kpis: { label: string; value: string; note: string }[] = [
+    { label: 'Waiting on an answer', value: formatMoney(m.openValue), note: `${openQuotes.length} open quote${openQuotes.length === 1 ? '' : 's'}` },
+    { label: 'Won', value: formatMoney(m.wonValue), note: m.decided ? `You won ${pct(m.winRate)} of ${m.decided} decided quotes` : 'No answers yet' },
+    { label: 'Quotes sent', value: String(m.sentCount), note: m.draftCount ? `${m.draftCount} draft${m.draftCount > 1 ? 's' : ''} not finished` : 'No unfinished drafts' },
+  ]
+  const DAY = 86400000
+  const followUps = openQuotes
+    .map((q) => ({ q, days: Math.floor((Date.now() - new Date(q.finalizedAt ?? q.createdAt).getTime()) / DAY) }))
+    .filter((x) => x.days >= 3)
+    .sort((a, b) => b.days - a.days)
+    .slice(0, 5)
+  const quality = [
+    { label: 'Time to quote', value: formatMinutes(m.medianMinutes), note: 'Typical time from first word to finished quote', target: 'Goal: under 3 min' },
+    { label: 'Lines kept as heard', value: pct(m.editFreeRate), note: 'Line items you sent without changing', target: 'Goal: 80% or more' },
+    { label: 'Totals you adjusted', value: pct(m.overrideRate), note: 'Quotes where you moved the first draft by over 10%', target: 'Goal: under 20%' },
   ]
 
   return (
@@ -55,6 +65,13 @@ export function Dashboard() {
           New quote
         </Link>
       </div>
+
+      {!settings.business.name && (
+        <div className="callout warn">
+          Your quotes don't show a business name yet. <Link to="/settings">Add your business details</Link> before sending
+          quotes to customers.
+        </div>
+      )}
 
       {hasSamples && (
         <div className="callout sample-banner">
@@ -71,10 +88,31 @@ export function Dashboard() {
             <div className="kpi-label">{k.label}</div>
             <div className="kpi-value">{k.value}</div>
             <div className="kpi-note">{k.note}</div>
-            {k.target && <div className="kpi-target">{k.target}</div>}
           </div>
         ))}
       </section>
+
+      {followUps.length > 0 && (
+        <section className="panel">
+          <div className="panel-head">
+            <h2>Time to follow up</h2>
+            <span className="muted small">Open quotes sent 3+ days ago</span>
+          </div>
+          <ul className="follow-ups">
+            {followUps.map(({ q, days }) => (
+              <li key={q.id}>
+                <Link to={`/quotes/${q.id}`}>
+                  <span className="fu-name">{q.job.customerName || q.number}</span>
+                  <span className="fu-meta">
+                    {q.number} · sent {days} days ago
+                  </span>
+                  <span className="fu-total">{formatMoney(totals(q.lineItems, tax, q.discount).total)}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <section className="panel">
         <div className="panel-head">
@@ -97,7 +135,7 @@ export function Dashboard() {
                 <th>Customer</th>
                 <th className="hide-sm">Rooms</th>
                 <th className="num">Total</th>
-                <th className="hide-sm">AI lines kept</th>
+                <th className="hide-sm">Lines kept</th>
                 <th className="hide-sm">Date</th>
                 <th>Status</th>
               </tr>
@@ -146,6 +184,22 @@ export function Dashboard() {
               })}
             </tbody>
           </table>
+        </div>
+      </section>
+      <section className="panel quality" aria-label="Note reading quality">
+        <div className="panel-head">
+          <h2>How well your notes are being read</h2>
+          <span className="muted small">Helps tune the app, not your business</span>
+        </div>
+        <div className="quality-grid">
+          {quality.map((k) => (
+            <div key={k.label}>
+              <div className="kpi-label">{k.label}</div>
+              <div className="q-value">{k.value}</div>
+              <div className="kpi-note">{k.note}</div>
+              <div className="kpi-target">{k.target}</div>
+            </div>
+          ))}
         </div>
       </section>
     </div>

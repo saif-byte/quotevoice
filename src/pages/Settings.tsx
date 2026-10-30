@@ -13,6 +13,7 @@ const RATE_FIELDS: { key: keyof RateCard; label: string; unit: string; step: num
   { key: 'prepLightPerRoom', label: 'Light prep', unit: '$ per room', step: 5 },
   { key: 'prepHeavyPerRoom', label: 'Heavy prep', unit: '$ per room', step: 5 },
   { key: 'wallpaperPerSqFt', label: 'Wallpaper removal', unit: '$ per sq ft', step: 0.05 },
+  { key: 'wallpaperBorderPerLinFt', label: 'Wallpaper border removal', unit: '$ per linear ft', step: 0.05 },
   { key: 'paintPerGallon', label: 'Paint & materials', unit: '$ per gallon', step: 1 },
   { key: 'coverageSqFtPerGallon', label: 'Paint coverage', unit: 'sq ft per gallon per coat', step: 10 },
   { key: 'minimumJob', label: 'Minimum job', unit: '$', step: 10 },
@@ -37,13 +38,13 @@ export function Settings() {
       <div className="page-head">
         <h1>Settings</h1>
         <button className="btn primary" disabled={!dirty} onClick={save}>
-          {saved ? 'Saved' : 'Save settings'}
+          {saved ? 'Saved' : dirty ? 'Save settings' : 'All changes saved'}
         </button>
       </div>
 
       <section className="panel">
         <h2>Your business</h2>
-        <p className="muted small">Shown at the top of every quote your customers see.</p>
+        <p className="muted small">Shown at the top of every quote your customers see. Leave the license field empty if you don't have one.</p>
         <div className="grid2">
           {(
             [
@@ -93,7 +94,11 @@ export function Settings() {
                   step={f.step}
                   min={0}
                   value={draft.rates[f.key]}
-                  onChange={(e) => setDraft({ ...draft, rates: { ...draft.rates, [f.key]: Number(e.target.value) || 0 } })}
+                  onChange={(e) => {
+                    // Rates can't be negative; paint coverage must be at least 1 sq ft per gallon.
+                    const floor = f.key === 'coverageSqFtPerGallon' ? 1 : 0
+                    setDraft({ ...draft, rates: { ...draft.rates, [f.key]: Math.max(floor, Number(e.target.value) || 0) } })
+                  }}
                 />
                 <span className="suffix">{f.unit}</span>
               </div>

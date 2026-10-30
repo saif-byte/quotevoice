@@ -1,6 +1,11 @@
 import { describeDiscount, formatMoney, totals } from '../lib/pricing'
 import type { SharedQuote } from '../lib/share'
 
+const PLURALS: Record<string, string> = { door: 'doors', window: 'windows', room: 'rooms', job: 'jobs', each: 'each' }
+function unitLabel(unit: string, qty: number): string {
+  return qty !== 1 && PLURALS[unit] ? PLURALS[unit] : unit
+}
+
 /** The customer-facing quote. Used inside the app, on share links, and for printing. */
 export function QuoteDocument({ q }: { q: SharedQuote }) {
   const t = totals(q.lineItems, q.taxPct, q.discount)
@@ -12,11 +17,11 @@ export function QuoteDocument({ q }: { q: SharedQuote }) {
     <article className="doc">
       <header className="doc-head">
         <div>
-          <div className="doc-business">{q.business.name}</div>
+          <div className={`doc-business ${q.business.name ? '' : 'placeholder'}`}>{q.business.name || 'Your business name'}</div>
           <div className="doc-contact">
-            {[q.business.phone, q.business.email, q.business.license].filter(Boolean).map((x) => (
-              <span key={x}>{x}</span>
-            ))}
+            {q.business.phone && <a href={`tel:${q.business.phone.replace(/[^\d+]/g, '')}`}>{q.business.phone}</a>}
+            {q.business.email && <a href={`mailto:${q.business.email}`}>{q.business.email}</a>}
+            {q.business.license && <span>{q.business.license}</span>}
           </div>
         </div>
         <div className="doc-title">
@@ -52,7 +57,7 @@ export function QuoteDocument({ q }: { q: SharedQuote }) {
             <tr key={i}>
               <td>{l.description}</td>
               <td className="num">
-                {l.qty.toLocaleString('en-US')} <span className="unit">{l.unit}</span>
+                {l.qty.toLocaleString('en-US')} <span className="unit">{unitLabel(l.unit, l.qty)}</span>
               </td>
               <td className="num">{formatMoney(l.rate)}</td>
               <td className="num">{formatMoney(l.amount)}</td>
@@ -95,8 +100,23 @@ export function QuoteDocument({ q }: { q: SharedQuote }) {
       )}
 
       <footer className="doc-foot">
-        Price covers labor and materials as listed. Furniture moving and repairs beyond those listed are quoted
-        separately. To accept, reply to this estimate or call {q.business.phone || 'us'}.
+        {q.paintByCustomer
+          ? 'Paint is supplied by the customer; this price covers labor and the items listed. '
+          : 'Price covers labor, paint and materials as listed. '}
+        Furniture moving and repairs beyond those listed are quoted separately. To accept this estimate,{' '}
+        {q.business.phone ? (
+          <>
+            call or text <a href={`tel:${q.business.phone.replace(/[^\d+]/g, '')}`}>{q.business.phone}</a>
+          </>
+        ) : (
+          'contact us'
+        )}
+        {q.business.email && (
+          <>
+            {' '}or email <a href={`mailto:${q.business.email}`}>{q.business.email}</a>
+          </>
+        )}
+        .
       </footer>
     </article>
   )

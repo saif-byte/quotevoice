@@ -15,13 +15,8 @@ export interface StoreData {
 }
 
 export const DEFAULT_SETTINGS: Settings = {
-  business: {
-    name: 'Brightline Painting Co.',
-    phone: '(555) 201-4477',
-    email: 'quotes@brightlinepainting.example',
-    license: 'Lic. #PC-104233',
-    validDays: 30,
-  },
+  // Blank on purpose: a painter must never send a quote with someone else's details.
+  business: { name: '', phone: '', email: '', license: '', validDays: 30 },
   rates: DEFAULT_RATES,
   ai: { geminiApiKey: '', geminiModel: DEFAULT_GEMINI_MODEL },
 }
@@ -31,6 +26,10 @@ export function loadStore(): StoreData {
     const raw = localStorage.getItem(KEY)
     if (raw) {
       const parsed = JSON.parse(raw) as Partial<StoreData>
+      // Earlier versions pre-filled an example company. Clear it if it was never changed.
+      if (parsed.settings?.business?.license === 'Lic. #PC-104233' && parsed.settings.business.name === 'Brightline Painting Co.') {
+        parsed.settings.business = { ...DEFAULT_SETTINGS.business }
+      }
       return {
         quotes: Array.isArray(parsed.quotes) ? parsed.quotes : [],
         settings: {

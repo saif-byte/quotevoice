@@ -1,4 +1,4 @@
-import { HashRouter, NavLink, Route, Routes, useLocation } from 'react-router-dom'
+import { NavLink, Outlet, RouterProvider, createHashRouter, useParams } from 'react-router-dom'
 import { Dashboard } from './pages/Dashboard'
 import { HowItWorks } from './pages/HowItWorks'
 import { NewQuote } from './pages/NewQuote'
@@ -7,13 +7,34 @@ import { Settings } from './pages/Settings'
 import { SharedView } from './pages/SharedView'
 import { StoreProvider } from './store'
 
-// HashRouter (#/path) works on GitHub Pages, which can't rewrite URLs to index.html.
+/** Each quote being edited gets its own fresh screen, so state never leaks between quotes. */
+function EditQuote() {
+  const { id } = useParams()
+  return <NewQuote key={`edit-${id}`} />
+}
+
+// Hash URLs (#/path) work on GitHub Pages, which can't rewrite URLs to index.html.
+// A "data router" is used so the quote screen can warn before unsaved work is lost.
+const router = createHashRouter([
+  { path: '/view/:data', element: <SharedView /> },
+  {
+    element: <Shell />,
+    children: [
+      { path: '/', element: <Dashboard /> },
+      { path: '/new', element: <NewQuote key="new" /> },
+      { path: '/quotes/:id', element: <QuoteView /> },
+      { path: '/quotes/:id/edit', element: <EditQuote /> },
+      { path: '/settings', element: <Settings /> },
+      { path: '/how', element: <HowItWorks /> },
+      { path: '*', element: <Dashboard /> },
+    ],
+  },
+])
+
 export default function App() {
   return (
     <StoreProvider>
-      <HashRouter>
-        <Shell />
-      </HashRouter>
+      <RouterProvider router={router} />
     </StoreProvider>
   )
 }
@@ -26,15 +47,6 @@ const NAV = [
 ]
 
 function Shell() {
-  const location = useLocation()
-  if (location.pathname.startsWith('/view/')) {
-    return (
-      <Routes>
-        <Route path="/view/:data" element={<SharedView />} />
-      </Routes>
-    )
-  }
-
   return (
     <div className="app">
       <a className="skip" href="#main">
@@ -54,15 +66,7 @@ function Shell() {
         </nav>
       </header>
       <main id="main">
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/new" element={<NewQuote />} />
-          <Route path="/quotes/:id" element={<QuoteView />} />
-          <Route path="/quotes/:id/edit" element={<NewQuote />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/how" element={<HowItWorks />} />
-          <Route path="*" element={<Dashboard />} />
-        </Routes>
+        <Outlet />
       </main>
     </div>
   )

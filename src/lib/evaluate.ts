@@ -17,6 +17,7 @@ export interface ExpectedRoom {
   windows?: number
   prep?: Prep
   wallpaper?: boolean
+  wallpaperBorder?: boolean
   colorChange?: boolean
   coats?: number
 }

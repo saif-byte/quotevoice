@@ -66,12 +66,14 @@ The project plan picks one metric to compete on: **AI line items sent without ed
   lines kept as-is, and how often the painter moved the total by more than 10%.
 - **Offline eval:** `eval/cases.ts` holds hand-labeled voice notes. `npm run eval` scores extraction field by field.
 
-```
-=== Offline parser: 163/163 fields correct (100%) ===
-```
+| Test set | What it is | Score |
+| --- | --- | --- |
+| Original cases | Notes written alongside the parser | 163/163 (100%) |
+| Field-test cases | Misreads found when an agent used the app as a painter; 73.3% before fixes | 116/116 (100%) |
+| Held-out cases | Same kinds of phrasing, reworded after the fixes, never tuned on | 38/39 (97.4%) |
 
-That score is optimistic: the test notes were written alongside the parser. The honest next step is replacing them with
-real voice notes recorded during painter interviews. To score Gemini too:
+The held-out score is the honest one: the first two sets were used to build and fix the parser. The next step is
+adding real voice notes recorded during painter interviews. To score Gemini too:
 
 ```bash
 GEMINI_API_KEY=your-key npm run eval
@@ -112,6 +114,22 @@ src/
 eval/              labeled voice notes + scoring
 docs/BUILD_STEPS.md  how this was built, step by step, and how to explain it
 ```
+
+## Field test (2026-10-30)
+
+An agent used the live app as "Mike Delgado", a residential painter, and reported 15 bugs. Fixed in v1.1:
+
+- Editing a quote, then clicking New quote, no longer overwrites the old quote.
+- The reader now handles "ceiling and trim are staying as is", "ceilings are like fourteen foot", spoken corrections
+  ("fourteen by twelve no wait twelve by twelve"), past or turned-down work ("we did their kitchen last year", "she asked
+  about the garage door"), landmarks ("the powder room off the kitchen"), whole-house statements, and wallpaper borders.
+- A color change adds a coat to the walls only, not the ceiling.
+- Negative numbers are blocked, $0 quotes can't be finished, and leaving an unsaved quote asks first.
+- The customer quote says when the customer supplies paint, and phone and email are tappable.
+- Business details start blank instead of an example company's.
+- The dashboard leads with money (open, won, follow-ups due); AI-quality numbers moved to their own section.
+
+Still open: Accept/sign on the customer page, sending by text or email, and accounts with sync (these need a backend).
 
 ## Limits of this version
 

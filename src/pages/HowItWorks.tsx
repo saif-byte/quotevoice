@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 
 const PIPELINE = [
   { title: 'Record', who: 'Browser', body: "The painter talks through the job. The browser's built-in speech recognition turns it into text. Typing works too." },
-  { title: 'Read', who: 'AI', body: 'Gemini reads the note and returns structured JSON: rooms, sizes, surfaces, prep, coats. Anything not said is left empty. Without a key, a rule-based parser does this step.' },
+  { title: 'Read', who: 'AI', body: "An AI model (Google Gemini) turns the note into a list of rooms with sizes, surfaces, prep and coats. Anything you didn't say is left blank, never guessed. Without AI turned on, a built-in reader does this step." },
   { title: 'Fill gaps', who: 'Code', body: 'Missing details get sensible defaults (8 ft ceilings, 2 coats, typical room sizes). Each one is listed as an assumption for the painter to check.' },
   { title: 'Price', who: 'Code', body: "Plain code calculates wall area, ceiling area and trim length, then applies the painter's own rate card. The AI never sets a price." },
   { title: 'Review & send', who: 'Painter', body: 'The painter edits anything, finalizes, and sends a link the customer can open on any phone. Edits are tracked to measure AI quality.' },
@@ -53,8 +53,8 @@ export function HowItWorks() {
           minutes.
         </li>
         <li>
-          <strong>Offline eval:</strong> a hand-labeled set of voice notes is scored field by field (room count, sizes,
-          surfaces, prep). Run <code>npm run eval</code> in the repo.
+          <strong>Test notes:</strong> a set of example voice notes, including ones from a field test, is checked field by
+          field (rooms, sizes, surfaces, prep) every time the app is updated.
         </li>
       </ul>
 

@@ -27,11 +27,49 @@ export function wordsToNumbers(text: string): string {
   t = t.replace(new RegExp(`\\b(${Object.keys(ONES).join('|')})\\b`, 'g'), (w: string) => String(ONES[w]))
   t = t.replace(/\b(?:a\s+)?(?:couple|pair)\s+(?:of\s+)?/g, '2 ')
   t = t.replace(/\bsingle\s+coat\b/g, '1 coat')
+  // "3 and a half" / "3½" → "3.5"
+  t = t.replace(/\b(\d+)\s*(?:and a half|-and-a-half|½)/g, (_, n: string) => `${n}.5`)
+  return t
+}
+
+const CORRECTION = /\b(?:no wait|wait no|no actually|actually|i mean|sorry|make that|scratch that|correction|or rather)\b,?\s*/g
+const SHAPE_TOKEN = /^(?:\d+(?:\.\d+)?|by|x|feet|foot|ft|coats?|doors?|windows?|rooms?|square|sq|high|tall)$/
+
+/**
+ * Spoken self-corrections: "fourteen by twelve no wait twelve by twelve" → "12 by 12".
+ * The words after the correction replace the same number of words before it.
+ */
+export function applyCorrections(text: string): string {
+  let t = text
+  for (let guard = 0; guard < 10; guard++) {
+    CORRECTION.lastIndex = 0
+    const m = CORRECTION.exec(t)
+    if (!m) break
+    const after = t.slice(m.index + m[0].length)
+    const tokens = after.split(/\s+/)
+    let n = 0
+    while (n < tokens.length && n < 5 && SHAPE_TOKEN.test(tokens[n].replace(/[.,;]$/, ''))) n++
+    const before = t.slice(0, m.index).trimEnd()
+    if (n === 0 || !/\d/.test(tokens.slice(0, n).join(' '))) {
+      // Not a numeric correction ("it's actually pretty clean"): just drop the marker word.
+      t = `${t.slice(0, m.index)}${after}`
+      continue
+    }
+    const beforeTokens = before.split(/\s+/)
+    const cut = beforeTokens.slice(-n)
+    if (!cut.some((w) => /\d/.test(w))) {
+      t = `${t.slice(0, m.index)}${after}`
+      continue
+    }
+    t = `${beforeTokens.slice(0, -n).join(' ')} ${after}`.trimStart()
+  }
   return t
 }
 
 const NEGATION = /\b(no|not|skip|skipping|except|without|don't|dont|doesn't|doesnt|leave|leaving|excluding|minus)\b[^,;]*$/
-const FINE_AFTER = /^\s*(is|are|look|looks|seem|seems)\s+(fine|good|ok|okay|in good shape|great)/
+// "ceiling is fine", "ceiling and trim are staying as is", "trim doesn't need anything"
+const FINE_AFTER =
+  /^\s*(?:(?:and|&|or)\s+(?:the\s+)?[a-z]+\s+)?(?:is|are|look|looks|seem|seems|can|will|should|'s|'re)?\s*(?:be\s+|stay\s+|staying\s+)?(?:fine|good|ok|okay|in good shape|great|staying|stay|stays|left alone|untouched|alone|as is|not\b|don't|doesn't|does not|do not|no need)/
 
 /** 'yes' if the thing is mentioned positively, 'no' if only negatively, null if not at all. */
 function mention(text: string, re: RegExp): 'yes' | 'no' | null {
@@ -92,7 +130,7 @@ function findMentions(text: string): Mention[] {
       const before = text.slice(Math.max(0, start - 30), start)
       const plural = Boolean(m[1])
       let count = 1
-      const countMatch = before.match(/(?:^|\s)(\d+|both)\s+(?:(?:of\s+the|the|small|big|large|kids?['’]?|upstairs|downstairs|guest|spare|other)\s+)*$/)
+      const countMatch = before.match(/(?:^|\s)(\d+|both)\s+(?:(?:of\s+the|the|small|big|large|kids?['’]?|upstairs|downstairs|guest|spare|other|more|extra)\s+)*$/)
       if (countMatch && (plural || countMatch[1] === 'both')) {
         count = countMatch[1] === 'both' ? 2 : Math.min(6, Math.max(1, Number(countMatch[1])))
       } else if (plural && type !== 'other' && !/stairs$/.test(m[0])) {
@@ -100,7 +138,7 @@ function findMentions(text: string): Mention[] {
       }
 
       const qualifier = before.match(new RegExp(`\\b(${QUALIFIERS.join('|')})\\s+$`))?.[1]
-      const isNew = /\b(other|another|second|2nd|third|3rd)\s+(?:\w+\s+)?$/.test(before)
+      const isNew = /\b(other|another|second|2nd|third|3rd|more|extra)\s+(?:\w+\s+)?$/.test(before)
       let name = titleCase(alias).replace(/^(\w)/, (c) => c.toUpperCase())
       name = name.charAt(0) + name.slice(1).toLowerCase()
       if (qualifier && !alias.startsWith(qualifier) && !['second', 'other'].includes(qualifier)) {
@@ -125,6 +163,7 @@ interface SegmentInfo {
   windows: number | null
   prep: Prep | null
   wallpaper: boolean | null
+  wallpaperBorder: boolean | null
   colorChange: boolean | null
   coats: number | null
 }
@@ -132,9 +171,10 @@ interface SegmentInfo {
 const FT = `(?:feet|foot|ft|'|’)`
 const HEIGHT_PATTERNS: RegExp[] = [
   new RegExp(`(\\d+(?:\\.\\d+)?)\\s*-?\\s*${FT}\\s*(?:high\\s+|tall\\s+)?ceilings?`, 'g'),
-  new RegExp(`ceilings?\\s+(?:are|is|at|of)\\s*(?:about|around|roughly|maybe)?\\s*(\\d+(?:\\.\\d+)?)\\s*${FT}?(?:\\s*(?:high|tall))?`, 'g'),
-  new RegExp(`ceilings?\\s+(?:about|around|roughly|maybe)?\\s*(\\d+(?:\\.\\d+)?)\\s*${FT}(?:\\s*(?:high|tall))?`, 'g'),
+  new RegExp(`ceilings?\\s+(?:are|is|at|of)\\s*(?:about|around|roughly|maybe|like|probably|say|close to)?\\s*(\\d+(?:\\.\\d+)?)\\s*${FT}?(?:\\s*(?:high|tall))?`, 'g'),
+  new RegExp(`ceilings?\\s+(?:about|around|roughly|maybe|like|probably)?\\s*(\\d+(?:\\.\\d+)?)\\s*${FT}(?:\\s*(?:high|tall))?`, 'g'),
   new RegExp(`(\\d+(?:\\.\\d+)?)\\s*${FT}\\s+(?:high|tall)`, 'g'),
+  new RegExp(`walls?\\s+(?:are|is)\\s+(?:about|around|like|roughly)?\\s*(\\d+(?:\\.\\d+)?)\\s*${FT}`, 'g'),
 ]
 
 function extractHeight(text: string): { height: number | null; rest: string } {
@@ -196,9 +236,15 @@ function extractSegment(segment: string): SegmentInfo {
     else if (light === 'no') prep = 'none'
   }
 
-  const wallpaper = yesNo(mention(text, /\bwall ?paper\b/))
+  // A wallpaper *border* is a strip along the top of the wall, priced per linear foot.
+  const BORDER = /\b(?:wall ?paper\s+)?borders?(?:\s+of\s+wall ?paper)?\b/
+  const hasBorder = /\bborders?\b/.test(text) && /wall ?paper|strip|peel|remove/.test(text)
+  const wallpaperBorder = hasBorder ? yesNo(mention(text, BORDER)) : null
+  const wallpaper = yesNo(mention(hasBorder ? text.replace(new RegExp(BORDER.source, 'g'), ' ') : text, /\bwall ?paper\b/))
+
+  // Only a dark or bold starting color needs the extra coat ("beige to light gray" doesn't).
   let colorChange: boolean | null = null
-  if (/\b(dark|darker|navy|deep red|bright red|bold colou?r|black|color change|colour change|extra coat|additional coat|third coat)\b|going from \w+ to/.test(text)) {
+  if (/\b(dark|darker|navy|deep red|bright red|bold colou?r|black|deep green|deep blue|charcoal|color change|colour change|extra coat|additional coat|third coat)\b/.test(text)) {
     colorChange = true
   }
 
@@ -218,6 +264,7 @@ function extractSegment(segment: string): SegmentInfo {
     windows: countOf(text, 'window'),
     prep,
     wallpaper,
+    wallpaperBorder,
     colorChange,
     coats,
   }
@@ -229,16 +276,26 @@ const NAME_STOP = new Set([
   'at', 'on', 'in', 'the', 'and', 'her', 'his', 'their', 'house', 'home', 'place', 'residence', 'is', 'has',
   'wants', 'needs', 'who', 'for', 'with', 'about', 'over', 'up', 'down', 'by', 'a', 'an', 'this', 'that',
   'job', 'quote', 'estimate', 'interior', 'exterior', 'living', 'master', 'kitchen', 'two', 'three',
+  'ok', 'okay', 'so', 'alright', 'now', 'then', 'pretty', 'big', 'small', 'monday', 'tuesday', 'wednesday',
+  'thursday', 'friday', 'saturday', 'sunday', 'next', 'last', 'tomorrow', 'today', 'now', 'just', 'paint', 'painting',
 ])
+
+const ROOM_WORDS = new Set(ALIASES.flatMap(({ alias }) => alias.split(' ')))
 
 export function extractCustomerName(original: string): string | null {
   const patterns = [
-    /\b(?:quote|estimate|job|bid|work|this is|it's|it is)\s+(?:is\s+)?for\s+(?:the\s+)?((?:mr|mrs|ms|dr)\.?\s+)?([a-z][a-z'’-]+)(?:\s+([a-z][a-z'’-]+))?/i,
+    /\b(?:quote|estimate|job|bid|work|this is|it's|it is|this one['’]?s|this one is|one['’]?s)\s+(?:is\s+)?for\s+(?:the\s+)?((?:mr|mrs|ms|dr)\.?\s+)?([a-z][a-z'’-]+)(?:\s+([a-z][a-z'’-]+))?/i,
     /\b(?:customer|client|homeowner|owner)(?:['’]s name)?\s*(?:is|:|name is|named)\s+((?:mr|mrs|ms|dr)\.?\s+)?([a-z][a-z'’-]+)(?:\s+([a-z][a-z'’-]+))?/i,
   ]
+  // Capitalized names after a bare "for", or "the Henderson job".
+  patterns.push(
+    /\bfor\s+((?:Mr|Mrs|Ms|Dr)\.?\s+)?([A-Z][a-z'’-]+)(?:\s+([A-Z][a-z'’-]+))?/,
+    /\b(?:the\s+)?()([A-Z][a-z'’-]+)()\s+(?:job|house|residence|place|project)\b/,
+  )
   for (const re of patterns) {
     const m = original.match(re)
     if (!m) continue
+    if (ROOM_WORDS.has(m[2].toLowerCase())) continue
     const first = m[2]
     if (NAME_STOP.has(first.toLowerCase())) continue
     const second = m[3] && !NAME_STOP.has(m[3].toLowerCase()) ? m[3] : ''
@@ -263,13 +320,24 @@ function extractPaintIncluded(lower: string): boolean | null {
   ) {
     return false
   }
-  if (/\b(we're|we are|we'll|we will|i'll|i will|i'm|i am|we)\s+(?:supplying|providing|buying|supply|provide|including|include|getting|get)\s+(?:the\s+|all\s+the\s+)?(?:paint|materials)/.test(lower) || /\bpaint (?:is )?included\b/.test(lower)) {
+  if (/\b(we're|we are|we'll|we will|i'll|i will|i'm|i am|we)\s+(?:supplying|providing|buying|supply|provide|including|include|getting|get|doing|handling|covering)\s+(?:the\s+|all\s+the\s+)?(?:paint|materials)/.test(lower) || /\bpaint (?:is )?included\b/.test(lower)) {
     return true
   }
   return null
 }
 
 const NOTE_KEYWORDS = /\b(cabinets?|exterior|outside|deck|fence|siding|shutters|garage door|furniture|move (?:the )?furniture|stain(?:ing)?|epoxy|popcorn)\b/
+
+/** Said inside a room sentence but meant for the whole job. */
+const CLAUSE_GLOBAL = /\b(throughout|everywhere|all (?:the )?rooms|whole (?:house|place)|every room|each room|all of (?:them|it))\b/
+
+/** A room mentioned as past work, a request that was turned down, or not part of this job. */
+const NOT_THIS_JOB_BEFORE = /\b(?:did|done|painted|finished|redid|re-did|asked about|not doing|not painting|not quoting|not touching|skip|skipping|leave|leaving|except|excluding|no)\s+(?:\w+\s+){0,2}$/
+const NOT_THIS_JOB_AFTER = /^\s*(?:\w+\s+){0,3}?(?:last (?:year|month|time|summer|spring|fall|winter)|a while (?:ago|back)|already (?:done|painted|finished)|next (?:year|time|spring|summer)|another time|is done|was done)\b/
+/** "the powder room off the kitchen": the kitchen is a landmark here, not a room to paint. */
+const REFERENCE_BEFORE = /\b(?:off|next to|by|near|across from|beside|behind|above|below|into|from|outside|leads to|same as|like|between)\s+(?:the\s+)?$/
+/** Sentences that are about something outside this quote. */
+const OUT_OF_SCOPE_SENTENCE = /\b(asked about|interior only|not (?:doing|quoting|touching)|maybe (?:later|next)|next (?:year|time)|last (?:year|time))\b/
 
 const GLOBAL_MARKERS = /\b(throughout|everywhere|all (?:the )?rooms|whole (?:house|place|job|thing)|every room|each room|all of (?:them|it)|everything|all of the rooms)\b/
 
@@ -294,7 +362,8 @@ interface RoomAcc {
 
 export function parseNote(note: string): ParseResult {
   const assumptions: string[] = []
-  const lower = wordsToNumbers(note.toLowerCase())
+  const lower = applyCorrections(wordsToNumbers(note.toLowerCase()))
+  const skippedNotes: string[] = []
   const sentences = lower
     .split(/(?<=[.!?;])\s+|\n+/)
     .map((s) => s.trim())
@@ -326,8 +395,22 @@ export function parseNote(note: string): ParseResult {
   }
 
   for (const sentence of sentences) {
-    const mentions = findMentions(sentence)
+    const mentions = findMentions(sentence).filter((m) => {
+      const before = sentence.slice(Math.max(0, m.start - 40), m.start)
+      const after = sentence.slice(m.end, m.end + 40)
+      if (REFERENCE_BEFORE.test(before)) return false
+      if (m.type === 'garage' && /^\s*doors?\b/.test(after)) {
+        skippedNotes.push('Garage door mentioned: not priced (interior only).')
+        return false
+      }
+      if (NOT_THIS_JOB_BEFORE.test(before.split(/[,;]/).pop() ?? '') || NOT_THIS_JOB_AFTER.test(after.split(/[,;]/)[0])) {
+        assumptions.push(`Left out "${m.name.toLowerCase()}": it sounds like past work or not part of this job. Add it back if needed.`)
+        return false
+      }
+      return true
+    })
     if (mentions.length === 0) {
+      if (OUT_OF_SCOPE_SENTENCE.test(sentence)) continue
       const isGlobal = GLOBAL_MARKERS.test(sentence) || lastRooms.length === 0
       const heightOnly = extractHeight(sentence).height !== null && sentence.replace(/[^a-z]/g, '').length < 60
       if (isGlobal || heightOnly) globalText.push(sentence)
@@ -339,7 +422,18 @@ export function parseNote(note: string): ParseResult {
     const groups: { accs: RoomAcc[]; text: string }[] = mentions.map((m, i) => {
       const from = i === 0 ? 0 : m.start
       const to = i + 1 < mentions.length ? mentions[i + 1].start : sentence.length
-      const own = sentence.slice(from, to).replace(sentence.slice(m.start, m.end), ' ')
+      let own = sentence.slice(from, to).replace(sentence.slice(m.start, m.end), ' ')
+      // "kitchen walls only, and the whole house needs patching" → that clause is for the whole job.
+      own = own
+        .split(/([,;])/)
+        .filter((clause) => {
+          if (CLAUSE_GLOBAL.test(clause) && !/\d+\s*(?:by|x)\s*\d+/.test(clause)) {
+            globalText.push(clause)
+            return false
+          }
+          return true
+        })
+        .join('')
       return { accs: roomFor(m), text: own }
     })
 
@@ -376,6 +470,7 @@ export function parseNote(note: string): ParseResult {
     r.windows = first(own, 'windows')
     r.prep = first(infos, 'prep')
     r.wallpaper = first(infos, 'wallpaper')
+    r.wallpaperBorder = first(infos, 'wallpaperBorder')
     r.colorChange = first(infos, 'colorChange')
     r.coats = first(infos, 'coats')
     if (r.doors !== null && r.doors !== undefined && /\bdoors\b/.test(acc.segments.join(' ')) && !/\d+\s+(?:[a-z]+\s+){0,2}doors?\b/.test(acc.segments.join(' '))) {
@@ -397,12 +492,19 @@ export function parseNote(note: string): ParseResult {
     room.prep ??= global.prep
   }
 
-  const notes = sentences
-    .filter((s) => NOTE_KEYWORDS.test(s))
-    .map((s) => {
-      const clipped = s.length > 90 ? s.slice(0, 87) + '…' : s
-      return clipped.charAt(0).toUpperCase() + clipped.slice(1)
-    })
+  const notes = [...skippedNotes]
+  for (const s of sentences) {
+    for (const clause of s.split(/[,;]|\bbut\b|\bso\b/)) {
+      const c = clause.trim().replace(/[.!?]+$/, '')
+      const keyword = c.match(NOTE_KEYWORDS)?.[0]
+      if (!keyword || c.length < 4) continue
+      if (notes.some((n) => n.toLowerCase().includes(keyword))) continue
+      const words = c.split(/\s+/)
+      const text = words.length > 14 ? words.slice(0, 14).join(' ') + '…' : c
+      const note = text.charAt(0).toUpperCase() + text.slice(1)
+      if (!notes.some((n) => n.toLowerCase().includes(c.slice(0, 20)))) notes.push(note)
+    }
+  }
 
   return {
     raw: {

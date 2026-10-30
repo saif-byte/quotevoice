@@ -94,6 +94,7 @@ export function normalizeJob(raw: RawJob): JobSpec {
       windows: Math.round(num(r?.windows, 0, 40) ?? 0),
       prep: prep(r?.prep) ?? 'none',
       wallpaper: bool(r?.wallpaper) ?? false,
+      wallpaperBorder: bool(r?.wallpaperBorder) ?? false,
       colorChange: bool(r?.colorChange) ?? false,
       coats: Math.round(coats),
     }
