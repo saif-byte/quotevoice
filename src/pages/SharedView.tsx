@@ -20,6 +20,10 @@ export function SharedView() {
 
   return (
     <div className="shared">
+      <p className="unverified-note no-print" role="note">
+        This estimate was shared as a self-contained link and isn't checked by QuoteVoice. Before paying anything,
+        confirm the price with your painter directly.
+      </p>
       <QuoteDocument q={q} />
       <div className="shared-actions no-print">
         <button className="btn" onClick={() => window.print()}>

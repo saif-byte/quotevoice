@@ -1,5 +1,5 @@
 import { describeDiscount, formatMoney, totals } from '../lib/pricing'
-import type { SharedQuote } from '../lib/share'
+import { isEmail, telHref, type SharedQuote } from '../lib/share'
 
 const PLURALS: Record<string, string> = { door: 'doors', window: 'windows', room: 'rooms', job: 'jobs', each: 'each' }
 function unitLabel(unit: string, qty: number): string {
@@ -19,8 +19,8 @@ export function QuoteDocument({ q }: { q: SharedQuote }) {
         <div>
           <div className={`doc-business ${q.business.name ? '' : 'placeholder'}`}>{q.business.name || 'Your business name'}</div>
           <div className="doc-contact">
-            {q.business.phone && <a href={`tel:${q.business.phone.replace(/[^\d+]/g, '')}`}>{q.business.phone}</a>}
-            {q.business.email && <a href={`mailto:${q.business.email}`}>{q.business.email}</a>}
+            {q.business.phone && (telHref(q.business.phone) ? <a href={telHref(q.business.phone)}>{q.business.phone}</a> : <span>{q.business.phone}</span>)}
+            {q.business.email && (isEmail(q.business.email) ? <a href={`mailto:${q.business.email}`}>{q.business.email}</a> : <span>{q.business.email}</span>)}
             {q.business.license && <span>{q.business.license}</span>}
           </div>
         </div>
@@ -106,14 +106,14 @@ export function QuoteDocument({ q }: { q: SharedQuote }) {
         Furniture moving and repairs beyond those listed are quoted separately. To accept this estimate,{' '}
         {q.business.phone ? (
           <>
-            call or text <a href={`tel:${q.business.phone.replace(/[^\d+]/g, '')}`}>{q.business.phone}</a>
+            call or text {telHref(q.business.phone) ? <a href={telHref(q.business.phone)}>{q.business.phone}</a> : q.business.phone}
           </>
         ) : (
           'contact us'
         )}
         {q.business.email && (
           <>
-            {' '}or email <a href={`mailto:${q.business.email}`}>{q.business.email}</a>
+            {' '}or email {isEmail(q.business.email) ? <a href={`mailto:${q.business.email}`}>{q.business.email}</a> : q.business.email}
           </>
         )}
         .

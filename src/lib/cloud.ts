@@ -1,5 +1,5 @@
 import { toShared } from './quoteHelpers'
-import type { SharedQuote } from './share'
+import { cleanShared, type SharedQuote } from './share'
 import { supabase } from './supabase'
 import type { BusinessInfo, Quote, RateCard, Settings } from './types'
 
@@ -142,7 +142,9 @@ export interface PublicQuote {
 export async function fetchSharedQuote(token: string): Promise<PublicQuote | null> {
   const { data, error } = await client().rpc('get_shared_quote', { p_token: token })
   if (error) throw error
-  return (data as PublicQuote | null) ?? null
+  const row = data as PublicQuote | null
+  const quote = row ? cleanShared(row.quote) : null
+  return row && quote ? { ...row, quote } : null
 }
 
 /** Tells the painter the homeowner opened the estimate. Failures are ignored: it's a nice-to-have. */

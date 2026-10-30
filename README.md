@@ -151,6 +151,14 @@ Database schema and policies: `supabase/migrations/`. Edge Function: `supabase/f
 `src/lib/geminiCore.ts` is shared by the browser and the function (`npm run sync:function` copies it; a test checks
 they match).
 
+## Security
+
+Reviewed end to end on 2026-10-30. In short: each painter only sees their own data (row-level security),
+homeowners only reach three narrow functions with a random code, the AI key stays on the server behind
+sign-in and daily limits, everything shown from a link is cleaned first, and a Content Security Policy
+blocks scripts from anywhere else. Details, test results and the dashboard settings to check are in
+[SECURITY.md](SECURITY.md).
+
 ## Limits of this version
 
 - Interior painting only; cabinets, exterior and specialty finishes are flagged but not priced.

@@ -478,3 +478,15 @@ code { background: var(--primer); border: 1px solid var(--line); border-radius: 
   .doc { border: 0; padding: 0; }
   .doc::before { display: none; }
 }
+
+/* Long share links carry the estimate inside the link, so anyone could make one. Say so. */
+.unverified-note {
+  max-width: 820px;
+  margin: 0 auto 12px;
+  padding: 10px 14px;
+  border: 1px solid var(--line, #ddd);
+  border-radius: 10px;
+  font-size: 0.875rem;
+  color: var(--muted, #555);
+  background: var(--surface, transparent);
+}

@@ -236,3 +236,37 @@ describe('notifications', () => {
     expect(eventsFrom([{ ...q, isSample: true, acceptedAt: '2026-10-30T11:00:00Z' }], 0)).toEqual([])
   })
 })
+
+describe('untrusted share data', () => {
+  it('drops wrong types and junk fields from a crafted link', async () => {
+    const { cleanShared, decodeShared, encodeShared } = await import('./share')
+    const crafted = {
+      v: 1, number: 'Q-1', date: 'not a date', customerName: { evil: true }, address: 'x'.repeat(5000),
+      business: { name: 'Fake Co', email: 'javascript:alert(1)', phone: 'call me', validDays: 99999, extra: '<script>' },
+      lineItems: [{ description: 'Walls', qty: '5', unit: 'sq ft', rate: 2, amount: 1e99 }],
+      taxPct: 900, notes: 'not an array', discount: { type: 'bogus', value: 500, reason: 'r' },
+    }
+    const q = decodeShared(encodeShared(crafted as never))!
+    expect(q.customerName).toBe('')
+    expect(q.address.length).toBe(300)
+    expect(q.business.validDays).toBe(365)
+    expect(q.lineItems[0]).toEqual({ description: 'Walls', qty: 0, unit: 'sq ft', rate: 2, amount: 1e8 })
+    expect(q.taxPct).toBe(100)
+    expect(q.notes).toEqual([])
+    expect(q.discount).toEqual({ type: 'percent', value: 100, reason: 'r' })
+    expect('extra' in q.business).toBe(false)
+    expect(cleanShared({ v: 2, lineItems: [] })).toBeNull()
+    expect(cleanShared(null)).toBeNull()
+  })
+
+  it('only turns real emails and phone numbers into links', async () => {
+    const { isEmail, telHref } = await import('./share')
+    expect(isEmail('mike@brightline.com')).toBe(true)
+    expect(isEmail('javascript:alert(1)')).toBe(false)
+    expect(isEmail('a@b.com?bcc=all@x.com')).toBe(false)
+    expect(isEmail('"x"@y.com')).toBe(false)
+    expect(telHref('(555) 201-7788')).toBe('tel:5552017788')
+    expect(telHref('+1 555 201 7788')).toBe('tel:+15552017788')
+    expect(telHref('call me')).toBe('')
+  })
+})

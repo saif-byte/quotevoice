@@ -36,13 +36,14 @@ async function extractOnServer(note: string): Promise<RawJob> {
  *  3. If AI is unavailable or fails, the built-in offline parser.
  */
 export async function extractJob(note: string, ai: AiSettings): Promise<ExtractionResult> {
-  if (!ai.geminiApiKey.trim() && supabase) {
+  const signedIn = Boolean(supabase && (await supabase.auth.getSession()).data.session)
+  if (!ai.geminiApiKey.trim() && signedIn) {
     try {
       return { job: normalizeJob(await extractOnServer(note)), extractor: 'gemini' }
     } catch (err) {
       const reason = err instanceof Error ? err.message : String(err)
       // "Not set up" is expected until a server key is added; don't alarm the painter about it.
-      const quiet = /not set up|not configured|Failed to send|fetch/i.test(reason)
+      const quiet = /not set up|not configured|Failed to send|fetch|Sign in|limit/i.test(reason)
       return { ...parseLocally(note), fallbackReason: quiet ? undefined : reason }
     }
   }

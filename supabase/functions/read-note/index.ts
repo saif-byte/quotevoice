@@ -1,8 +1,13 @@
 // Supabase Edge Function: reads a painter's voice note with Gemini using a key
 // kept on the server (secret GEMINI_API_KEY), so the browser never sees it.
 //
-// It only accepts { note } and always sends the fixed QuoteVoice prompt and schema,
-// so it can't be used as a general-purpose AI proxy.
+// Security:
+//  - Only signed-in painters: the caller's login token is checked with Supabase Auth.
+//  - Daily limits (100 notes per painter, 1,500 in total) via the use_ai_quota() database
+//    function, so nobody can drain the free AI quota.
+//  - Only accepts { note } (max 4,000 characters) and always sends the fixed QuoteVoice
+//    prompt and schema, so it can't be used as a general-purpose AI proxy.
+//  - Error messages never include the key or internal details.
 //
 // Deployed from supabase/functions/read-note/. geminiCore.ts is a copy of
 // src/lib/geminiCore.ts (kept in sync by `npm run sync:function`).
@@ -35,6 +40,20 @@ Deno.serve(async (req: Request) => {
   const key = Deno.env.get('GEMINI_API_KEY')
   if (!key) return json({ error: 'AI reading is not set up on the server yet.' }, 503, origin)
 
+  // Who is calling? Must be a signed-in painter.
+  const auth = req.headers.get('Authorization') ?? ''
+  const supabaseUrl = Deno.env.get('SUPABASE_URL')
+  const anonKey = Deno.env.get('SUPABASE_ANON_KEY')
+  if (!auth.startsWith('Bearer ') || !supabaseUrl || !anonKey) return json({ error: 'Sign in to use AI reading.' }, 401, origin)
+  const headers = { apikey: anonKey, Authorization: auth, 'Content-Type': 'application/json' }
+  const userRes = await fetch(`${supabaseUrl}/auth/v1/user`, { headers })
+  if (!userRes.ok) return json({ error: 'Sign in to use AI reading.' }, 401, origin)
+
+  // Daily limits, counted in the database as this painter.
+  const quotaRes = await fetch(`${supabaseUrl}/rest/v1/rpc/use_ai_quota`, { method: 'POST', headers, body: '{}' })
+  const allowed = quotaRes.ok ? await quotaRes.json() : false
+  if (allowed !== true) return json({ error: "Today's AI reading limit is reached. The built-in reader will be used instead." }, 429, origin)
+
   let note = ''
   try {
     const body = await req.json()
@@ -49,7 +68,8 @@ Deno.serve(async (req: Request) => {
     const job = await callGemini(note, key, Deno.env.get('GEMINI_MODEL') || DEFAULT_GEMINI_MODEL)
     return json({ job }, 200, origin)
   } catch (err) {
-    const message = err instanceof GeminiError ? err.message : 'The AI service failed.'
-    return json({ error: message }, 502, origin)
+    // Log the detail for the developer; send the painter a generic message.
+    console.error('read-note failed:', err instanceof GeminiError ? err.message : err)
+    return json({ error: 'The AI service is unavailable right now.' }, 502, origin)
   }
 })
