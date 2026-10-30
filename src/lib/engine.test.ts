@@ -7,6 +7,18 @@ import { buildSampleQuotes } from './seed'
 import { decodeShared, encodeShared } from './share'
 import { applyCorrections, wordsToNumbers } from './parser'
 
+describe('shared Gemini file', () => {
+  it('lists the same room types as the app', async () => {
+    const { ROOM_TYPE_KEYS } = await import('./geminiCore')
+    const { ROOM_TYPES } = await import('./rooms')
+    expect([...ROOM_TYPE_KEYS].sort()).toEqual([...ROOM_TYPES].sort())
+  })
+  it('is copied unchanged into the Supabase function', async () => {
+    const { readFileSync } = await import('node:fs')
+    expect(readFileSync('supabase/functions/read-note/geminiCore.ts', 'utf8')).toBe(readFileSync('src/lib/geminiCore.ts', 'utf8'))
+  })
+})
+
 describe('wordsToNumbers', () => {
   it('converts spoken numbers', () => {
     expect(wordsToNumbers('twelve by fourteen, nine foot, twenty two')).toBe('12 by 14, 9 foot, 22')

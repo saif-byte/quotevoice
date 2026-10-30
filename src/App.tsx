@@ -1,11 +1,13 @@
 import { NavLink, Outlet, RouterProvider, createHashRouter, useParams } from 'react-router-dom'
+import { Account } from './pages/Account'
 import { Dashboard } from './pages/Dashboard'
 import { HowItWorks } from './pages/HowItWorks'
 import { NewQuote } from './pages/NewQuote'
 import { QuoteView } from './pages/QuoteView'
 import { Settings } from './pages/Settings'
+import { PublicQuote } from './pages/PublicQuote'
 import { SharedView } from './pages/SharedView'
-import { StoreProvider } from './store'
+import { StoreProvider, useStore } from './store'
 
 /** Each quote being edited gets its own fresh screen, so state never leaks between quotes. */
 function EditQuote() {
@@ -17,6 +19,7 @@ function EditQuote() {
 // A "data router" is used so the quote screen can warn before unsaved work is lost.
 const router = createHashRouter([
   { path: '/view/:data', element: <SharedView /> },
+  { path: '/q/:token', element: <PublicQuote /> },
   {
     element: <Shell />,
     children: [
@@ -26,6 +29,7 @@ const router = createHashRouter([
       { path: '/quotes/:id/edit', element: <EditQuote /> },
       { path: '/settings', element: <Settings /> },
       { path: '/how', element: <HowItWorks /> },
+      { path: '/account', element: <Account /> },
       { path: '*', element: <Dashboard /> },
     ],
   },
@@ -46,6 +50,41 @@ const NAV = [
   { to: '/settings', label: 'Settings', end: false },
 ]
 
+function AccountLink() {
+  const { cloudEnabled, user, sync, authReady } = useStore()
+  if (!cloudEnabled || !authReady) return null
+  const status = { local: '', loading: 'Loading', synced: 'Synced', saving: 'Saving…', error: 'Not saved' }[sync]
+  return (
+    <NavLink to="/account" className={({ isActive }) => `account-link ${isActive ? 'active' : ''}`}>
+      {user ? (
+        <>
+          <span className={`sync-dot ${sync}`} aria-hidden="true" />
+          <span>{status}</span>
+        </>
+      ) : (
+        'Sign in'
+      )}
+    </NavLink>
+  )
+}
+
+function DeviceQuotesBanner() {
+  const { deviceQuotes, importDeviceQuotes, dismissDeviceQuotes } = useStore()
+  if (deviceQuotes.length === 0) return null
+  const n = deviceQuotes.length
+  return (
+    <div className="callout device-banner" role="status">
+      {n} quote{n > 1 ? 's' : ''} saved on this device {n > 1 ? "aren't" : "isn't"} in your account yet.
+      <button className="btn primary" onClick={importDeviceQuotes}>
+        Add {n > 1 ? 'them' : 'it'} to my account
+      </button>
+      <button className="link-btn" onClick={dismissDeviceQuotes}>
+        Not now
+      </button>
+    </div>
+  )
+}
+
 function Shell() {
   return (
     <div className="app">
@@ -63,9 +102,11 @@ function Shell() {
               {n.label}
             </NavLink>
           ))}
+          <AccountLink />
         </nav>
       </header>
       <main id="main">
+        <DeviceQuotesBanner />
         <Outlet />
       </main>
     </div>

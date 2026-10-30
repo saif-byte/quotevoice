@@ -129,18 +129,36 @@ An agent used the live app as "Mike Delgado", a residential painter, and reporte
 - Business details start blank instead of an example company's.
 - The dashboard leads with money (open, won, follow-ups due); AI-quality numbers moved to their own section.
 
-Still open: Accept/sign on the customer page, sending by text or email, and accounts with sync (these need a backend).
+Accounts, sync, short links and online acceptance were added next (see below). Still open: sending by text or email.
+
+## Accounts, sync and online acceptance (Supabase, free tier)
+
+Signing in is optional. Without an account everything stays in the browser, exactly like v1.
+
+| Feature | How it works |
+| --- | --- |
+| Accounts | Email + password via Supabase Auth |
+| Sync | Quotes and rates saved to Postgres; a cached copy keeps the app fast and usable offline |
+| Privacy | Row-level security: each painter can only read and change their own rows |
+| Short customer link | `…/#/q/<16-character code>`; the database function returns only the customer copy |
+| Accept online | Homeowner types their name; a database function records it once and marks the quote Won |
+| Server-side AI | Edge Function `read-note` calls Gemini with a server secret, so no key is needed in the browser |
+| Never pauses | A daily GitHub Action calls a `ping` function, because free projects pause after 7 days idle |
+
+Database schema and policies: `supabase/migrations/`. Edge Function: `supabase/functions/read-note/`.
+`src/lib/geminiCore.ts` is shared by the browser and the function (`npm run sync:function` copies it; a test checks
+they match).
 
 ## Limits of this version
 
 - Interior painting only; cabinets, exterior and specialty finishes are flagged but not priced.
-- Data lives in one browser. No accounts or sync.
+- Without signing in, data lives in one browser.
 - Voice input needs Chrome, Edge or Safari.
 - Default rates are examples, not market advice. Painters set their own in Settings.
 
 ## What's next
 
 - Run the 6–8 painter interviews (experiment E1) and add their real voice notes to the eval set.
-- Accounts and a shared database so quotes sync between phone and laptop.
+- Score Gemini on the eval set (`GEMINI_API_KEY=… npm run eval`) and compare it with the built-in reader.
+- Send quotes by text or email from the app, and notify the painter when a quote is accepted.
 - Photo capture on site, attached to the quote.
-- "Accept quote" button on the customer link.

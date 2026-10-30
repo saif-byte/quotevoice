@@ -10,7 +10,7 @@ import { useStore } from '../store'
 
 export function QuoteView() {
   const { id } = useParams()
-  const { quotes, settings, saveQuote, deleteQuote } = useStore()
+  const { quotes, settings, saveQuote, deleteQuote, user, sync } = useStore()
   const navigate = useNavigate()
   const [copied, setCopied] = useState<'copied' | 'manual' | null>(null)
   const [link, setLink] = useState<string | null>(null)
@@ -31,6 +31,7 @@ export function QuoteView() {
   }
 
   const shared = toShared(q, settings)
+  const shareToken = q.shareToken
   const stats = editStats(q)
   const aiTotal = totals(q.aiLineItems, settings.rates.taxPct).total
   const final = totals(q.lineItems, settings.rates.taxPct, q.discount)
@@ -45,7 +46,9 @@ export function QuoteView() {
 
   // Always show the link on screen; copying to the clipboard is a bonus that some browsers block.
   async function copyLink() {
-    const url = shareUrl(shared)
+    // Signed in: a short link served from the database, with an Accept button.
+    // Not signed in: the whole quote packed into a long link (no Accept).
+    const url = user && shareToken ? `${window.location.href.split('#')[0].split('?')[0]}#/q/${shareToken}` : shareUrl(shared)
     setLink(url)
     let ok = false
     try {
@@ -94,6 +97,19 @@ export function QuoteView() {
         </div>
       )}
 
+      {q.acceptedAt && (
+        <div className="callout accepted no-print" role="status">
+          <strong>Accepted online</strong> by {q.acceptedName} on{' '}
+          {new Date(q.acceptedAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}.
+        </div>
+      )}
+
+      {!user && q.status !== 'draft' && !link && (
+        <p className="small muted no-print">
+          <Link to="/account">Sign in</Link> to send a short link your customer can accept online.
+        </p>
+      )}
+
       {link && (
         <div className={`callout share-box no-print ${copied === 'copied' ? 'ok' : ''}`} role="status">
           <strong>
@@ -102,6 +118,9 @@ export function QuoteView() {
               : "Your browser didn't allow copying. Select the link below and copy it."}
           </strong>
           <input readOnly value={link} onFocus={(e) => e.currentTarget.select()} aria-label="Customer link" />
+          {user && sync === 'error' && (
+            <span className="small warn-text">This quote hasn't synced yet, so the link won't open until it does. Check your connection.</span>
+          )}
           <a href={link} target="_blank" rel="noreferrer" className="small">
             Preview what the customer sees
           </a>

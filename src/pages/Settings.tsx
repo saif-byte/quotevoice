@@ -21,7 +21,7 @@ const RATE_FIELDS: { key: keyof RateCard; label: string; unit: string; step: num
 ]
 
 export function Settings() {
-  const { settings, updateSettings, loadSamples, clearSamples, resetAll, quotes } = useStore()
+  const { settings, updateSettings, loadSamples, clearSamples, resetAll, quotes, user } = useStore()
   const [draft, setDraft] = useState<SettingsT>(settings)
   const [saved, setSaved] = useState(false)
   const [showKey, setShowKey] = useState(false)
@@ -147,7 +147,9 @@ export function Settings() {
       <section className="panel">
         <h2>Data</h2>
         <p className="muted small">
-          Quotes are stored in this browser only ({quotes.length} saved). Clearing your browser data removes them.
+          {user
+            ? `Signed in as ${user.email}: your quotes and settings are saved to your account and sync across devices.`
+            : `Quotes are stored in this browser only (${quotes.length} saved). Clearing your browser data removes them. Sign in to keep them safe and sync across devices.`}
         </p>
         <div className="row-actions">
           <button className="btn" onClick={loadSamples}>
@@ -159,13 +161,13 @@ export function Settings() {
           <button
             className="btn danger"
             onClick={() => {
-              if (window.confirm('Delete all quotes and reset settings? This cannot be undone.')) {
+              if (window.confirm(user ? "Clear this device's copy? Quotes in your account are not deleted." : 'Delete all quotes and reset settings? This cannot be undone.')) {
                 resetAll()
                 setDraft(DEFAULT_SETTINGS)
               }
             }}
           >
-            Delete everything
+            {user ? "Clear this device's copy" : 'Delete everything'}
           </button>
         </div>
       </section>

@@ -145,6 +145,11 @@ export interface Quote {
   finalizedAt?: string
   decidedAt?: string
   isSample?: boolean
+  /** Random code in the short customer link (#/q/<code>), set when the quote is finished. */
+  shareToken?: string
+  /** Set when the homeowner clicks Accept on the customer link. */
+  acceptedName?: string
+  acceptedAt?: string
 }
 
 export interface BusinessInfo {

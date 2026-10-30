@@ -9,6 +9,11 @@ import type { Quote, Settings } from './types'
 
 const KEY = 'quotevoice:v1'
 
+/** Where to keep data in this browser: the shared local key, or a per-account cache when signed in. */
+export function storageKey(userId?: string | null): string {
+  return userId ? `${KEY}:user:${userId}` : KEY
+}
+
 export interface StoreData {
   quotes: Quote[]
   settings: Settings
@@ -21,9 +26,9 @@ export const DEFAULT_SETTINGS: Settings = {
   ai: { geminiApiKey: '', geminiModel: DEFAULT_GEMINI_MODEL },
 }
 
-export function loadStore(): StoreData {
+export function loadStore(key: string = KEY): StoreData {
   try {
-    const raw = localStorage.getItem(KEY)
+    const raw = localStorage.getItem(key)
     if (raw) {
       const parsed = JSON.parse(raw) as Partial<StoreData>
       // Earlier versions pre-filled an example company. Clear it if it was never changed.
@@ -45,9 +50,9 @@ export function loadStore(): StoreData {
   return { quotes: [], settings: DEFAULT_SETTINGS }
 }
 
-export function saveStore(data: StoreData): void {
+export function saveStore(data: StoreData, key: string = KEY): void {
   try {
-    localStorage.setItem(KEY, JSON.stringify(data))
+    localStorage.setItem(key, JSON.stringify(data))
   } catch {
     /* storage full or blocked: keep working in memory */
   }
