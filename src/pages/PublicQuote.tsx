@@ -1,12 +1,15 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useSearchParams } from 'react-router-dom'
 import { QuoteDocument } from '../components/QuoteDocument'
-import { acceptSharedQuote, fetchSharedQuote, type PublicQuote as PublicQuoteData } from '../lib/cloud'
+import { acceptSharedQuote, fetchSharedQuote, markQuoteViewed, type PublicQuote as PublicQuoteData } from '../lib/cloud'
+import { supabase } from '../lib/supabase'
 import { formatMoney, totals } from '../lib/pricing'
 
 /** What the homeowner sees from a short link (#/q/<code>): the estimate and an Accept button. */
 export function PublicQuote() {
   const { token = '' } = useParams()
+  const [search] = useSearchParams()
+  const isPreview = search.get('preview') === '1'
   const [state, setState] = useState<'loading' | 'ready' | 'missing' | 'error'>('loading')
   const [data, setData] = useState<PublicQuoteData | null>(null)
   const [name, setName] = useState('')
@@ -17,16 +20,19 @@ export function PublicQuote() {
   useEffect(() => {
     let cancelled = false
     fetchSharedQuote(token)
-      .then((d) => {
+      .then(async (d) => {
         if (cancelled) return
         setData(d)
         setState(d ? 'ready' : 'missing')
+        // Count the homeowner's visit, but not the painter checking their own link.
+        const painterSignedIn = Boolean((await supabase?.auth.getSession())?.data.session)
+        if (d && !isPreview && !painterSignedIn) void markQuoteViewed(token)
       })
       .catch(() => !cancelled && setState('error'))
     return () => {
       cancelled = true
     }
-  }, [token])
+  }, [token, isPreview])
 
   if (state === 'loading') {
     return (
@@ -70,6 +76,7 @@ export function PublicQuote() {
 
   return (
     <div className="shared">
+      {isPreview && <div className="callout no-print">Preview: this is what your customer sees. Opening it here isn't counted as a view.</div>}
       {accepted && (
         <div className="callout accepted" role="status">
           <strong>Accepted</strong> by {data.acceptedName} on{' '}

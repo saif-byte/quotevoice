@@ -120,6 +120,8 @@ export function normalizeJob(raw: RawJob): JobSpec {
   return {
     customerName: (typeof raw.customerName === 'string' && raw.customerName.trim()) || '',
     address: (typeof raw.address === 'string' && raw.address.trim()) || '',
+    customerPhone: (typeof raw.customerPhone === 'string' && raw.customerPhone.trim()) || '',
+    customerEmail: '',
     rooms,
     paintIncluded,
     notes,

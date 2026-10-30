@@ -5,7 +5,9 @@ import { normalizeJob } from './normalize'
 import { coatFactor, DEFAULT_RATES, discountAmount, priceJob, totals, wallArea } from './pricing'
 import { buildSampleQuotes } from './seed'
 import { decodeShared, encodeShared } from './share'
-import { applyCorrections, wordsToNumbers } from './parser'
+import { applyCorrections, extractPhone, parseNote, wordsToNumbers } from './parser'
+import { buildMessage, formatPhone, isValidPhone, mailtoHref, smsHref } from './send'
+import { timeAgo } from './quoteHelpers'
 
 describe('shared Gemini file', () => {
   it('lists the same room types as the app', async () => {
@@ -171,5 +173,35 @@ describe('share links', () => {
     const withDiscount = encodeShared({ ...decodeShared(data)!, discount: { type: 'amount', value: 50, reason: 'Repeat job' } })
     expect(decodeShared(withDiscount)?.discount?.value).toBe(50)
     expect(decodeShared('garbage')).toBeNull()
+  })
+})
+
+describe('sending', () => {
+  it('reads a spoken phone number and keeps it out of the room details', () => {
+    const { raw } = parseNote('Quote for Sarah Lee, her number is six one four, five five five, oh one eight two. Bedroom 12 by 12 walls, 2 doors.')
+    expect(raw.customerPhone).toBe('(614) 555-0182')
+    expect(raw.rooms[0].doors).toBe(2)
+    expect(raw.rooms[0].lengthFt).toBe(12)
+  })
+  it('reads a typed phone number', () => {
+    expect(extractPhone('call her at 614-555-0182').phone).toBe('(614) 555-0182')
+    expect(extractPhone('bedroom 12 by 14').phone).toBeNull()
+  })
+  it('builds the message and links', () => {
+    const msg = buildMessage({ customerName: 'Sarah Johnson', businessName: 'Brightline', link: 'https://x/#/q/abc', total: 1234.5, canAcceptOnline: true })
+    expect(msg).toContain('Hi Sarah,')
+    expect(msg).toContain('$1,234.50')
+    expect(msg).toContain('accept it right from the link')
+    expect(smsHref('(614) 555-0182', 'hi there')).toBe('sms:+16145550182?&body=hi%20there')
+    expect(mailtoHref('a@b.com', 'Subj', 'Body')).toBe('mailto:a@b.com?subject=Subj&body=Body')
+    expect(isValidPhone('614 555 0182')).toBe(true)
+    expect(isValidPhone('555 0182')).toBe(false)
+    expect(formatPhone('16145550182')).toBe('(614) 555-0182')
+  })
+  it('describes time since an event', () => {
+    const now = new Date('2026-10-30T12:00:00Z')
+    expect(timeAgo('2026-10-30T11:59:30Z', now)).toBe('just now')
+    expect(timeAgo('2026-10-30T09:00:00Z', now)).toBe('3 hours ago')
+    expect(timeAgo('2026-10-28T12:00:00Z', now)).toBe('2 days ago')
   })
 })

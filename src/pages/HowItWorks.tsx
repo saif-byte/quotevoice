@@ -24,12 +24,12 @@ const PIPELINE = [
   {
     title: 'Review & send',
     who: 'Painter',
-    body: 'The painter changes anything, finishes the quote, and sends a short link. Every edit is recorded, which is how the quality of the AI is measured.',
+    body: "The painter changes anything, finishes the quote, and taps Text it or Email it: the phone's own Messages or Mail app opens with the message and link filled in. Every edit is recorded, which is how the quality of the AI is measured.",
   },
   {
     title: 'Accept',
     who: 'Customer',
-    body: "The homeowner opens the link on any phone, types their name and clicks Accept. The quote turns to Won on the painter's dashboard.",
+    body: "The homeowner opens the link on any phone, types their name and clicks Accept. The painter sees when the link was opened, and the quote turns to Won on their dashboard.",
   },
 ]
 
@@ -142,7 +142,7 @@ export function HowItWorks() {
       <h2>Known limits of this version</h2>
       <ul>
         <li>Interior painting only. Exterior, cabinets and specialty finishes are noted but not priced.</li>
-        <li>Quotes are sent by copying the link into a text or email; the app doesn't send messages itself yet.</li>
+        <li>Texts and emails go out from the painter's own phone; the painter isn't notified instantly when a quote is accepted, it shows on the dashboard.</li>
         <li>Voice input works in Chrome, Edge and Safari, not Firefox.</li>
         <li>Default rates are examples. Each painter sets their own in Settings.</li>
       </ul>

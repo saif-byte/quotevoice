@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { QuoteDocument } from '../components/QuoteDocument'
+import { SendPanel } from '../components/SendPanel'
 import { editStats, minutesToQuote, wasOverridden } from '../lib/metrics'
 import { describeDiscount, formatMoney, totals } from '../lib/pricing'
-import { STATUS_LABEL, formatMinutes, toShared } from '../lib/quoteHelpers'
+import { STATUS_LABEL, formatMinutes, timeAgo, toShared } from '../lib/quoteHelpers'
 import { shareUrl } from '../lib/share'
 import type { QuoteStatus } from '../lib/types'
 import { useStore } from '../store'
@@ -12,8 +13,7 @@ export function QuoteView() {
   const { id } = useParams()
   const { quotes, settings, saveQuote, deleteQuote, user, sync } = useStore()
   const navigate = useNavigate()
-  const [copied, setCopied] = useState<'copied' | 'manual' | null>(null)
-  const [link, setLink] = useState<string | null>(null)
+  const [justFinished, setJustFinished] = useState(false)
   const q = quotes.find((x) => x.id === id)
 
   if (!q) {
@@ -44,23 +44,10 @@ export function QuoteView() {
       decidedAt: status === 'won' || status === 'lost' ? new Date().toISOString() : undefined,
     })
 
-  // Always show the link on screen; copying to the clipboard is a bonus that some browsers block.
-  async function copyLink() {
-    // Signed in: a short link served from the database, with an Accept button.
-    // Not signed in: the whole quote packed into a long link (no Accept).
-    const url = user && shareToken ? `${window.location.href.split('#')[0].split('?')[0]}#/q/${shareToken}` : shareUrl(shared)
-    setLink(url)
-    let ok = false
-    try {
-      await Promise.race([
-        navigator.clipboard.writeText(url).then(() => (ok = true)),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 1500)),
-      ])
-    } catch {
-      ok = false
-    }
-    setCopied(ok ? 'copied' : 'manual')
-  }
+  // Signed in: a short link served from the database, with Accept and view tracking.
+  // Not signed in: the whole quote packed into a long link.
+  const shortLink = Boolean(user && shareToken)
+  const link = shortLink ? `${window.location.href.split('#')[0].split('?')[0]}#/q/${shareToken}` : shareUrl(shared)
 
   return (
     <div className="page">
@@ -75,18 +62,20 @@ export function QuoteView() {
         </div>
         <div className="head-actions">
           {q.status === 'draft' ? (
-            <button className="btn primary" onClick={() => setStatus('sent')} disabled={final.total <= 0}>
+            <button
+              className="btn primary"
+              onClick={() => {
+                setStatus('sent')
+                setJustFinished(true)
+              }}
+              disabled={final.total <= 0}
+            >
               Finish quote
             </button>
           ) : (
-            <>
-              <button className="btn primary" onClick={copyLink}>
-                {copied === 'copied' ? 'Link copied' : 'Copy customer link'}
-              </button>
-              <button className="btn" onClick={() => window.print()}>
-                Print or save PDF
-              </button>
-            </>
+            <button className="btn" onClick={() => window.print()}>
+              Print or save PDF
+            </button>
           )}
         </div>
       </div>
@@ -104,27 +93,25 @@ export function QuoteView() {
         </div>
       )}
 
-      {!user && q.status !== 'draft' && !link && (
-        <p className="small muted no-print">
-          <Link to="/account">Sign in</Link> to send a short link your customer can accept online.
-        </p>
-      )}
-
-      {link && (
-        <div className={`callout share-box no-print ${copied === 'copied' ? 'ok' : ''}`} role="status">
-          <strong>
-            {copied === 'copied'
-              ? 'Link copied. Paste it into a text or email to your customer.'
-              : "Your browser didn't allow copying. Select the link below and copy it."}
-          </strong>
-          <input readOnly value={link} onFocus={(e) => e.currentTarget.select()} aria-label="Customer link" />
-          {user && sync === 'error' && (
-            <span className="small warn-text">This quote hasn't synced yet, so the link won't open until it does. Check your connection.</span>
-          )}
-          <a href={link} target="_blank" rel="noreferrer" className="small">
-            Preview what the customer sees
-          </a>
-        </div>
+      {q.status !== 'draft' && (
+        <SendPanel
+          key={`${q.id}-${shortLink}-${justFinished}`}
+          quote={q}
+          link={link}
+          total={final.total}
+          businessName={settings.business.name}
+          canAcceptOnline={shortLink}
+          signedIn={Boolean(user)}
+          syncError={sync === 'error'}
+          onSent={(via, contact) =>
+            saveQuote({
+              ...q,
+              sentAt: new Date().toISOString(),
+              sentVia: via,
+              job: { ...q.job, customerPhone: contact.phone, customerEmail: contact.email },
+            })
+          }
+        />
       )}
 
       <div className="quote-layout">
@@ -141,6 +128,25 @@ export function QuoteView() {
                   </button>
                 ))}
               </div>
+            </section>
+          )}
+
+          {q.status !== 'draft' && (
+            <section className="side-block">
+              <h2>Delivery</h2>
+              <ul className="delivery">
+                <li className={q.sentAt ? 'done' : ''}>
+                  {q.sentAt ? `Sent ${timeAgo(q.sentAt)}${q.sentVia && q.sentVia !== 'copy' ? ` by ${q.sentVia}` : ''}` : 'Not sent from the app yet'}
+                </li>
+                {shortLink && (
+                  <li className={q.firstViewedAt ? 'done' : ''}>
+                    {q.firstViewedAt
+                      ? `Opened by customer ${timeAgo(q.lastViewedAt ?? q.firstViewedAt)}${q.viewCount && q.viewCount > 1 ? ` (${q.viewCount} views)` : ''}`
+                      : 'Not opened yet'}
+                  </li>
+                )}
+                {shortLink && <li className={q.acceptedAt ? 'done' : ''}>{q.acceptedAt ? `Accepted ${timeAgo(q.acceptedAt)}` : 'Not accepted yet'}</li>}
+              </ul>
             </section>
           )}
 

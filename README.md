@@ -129,7 +129,7 @@ An agent used the live app as "Mike Delgado", a residential painter, and reporte
 - Business details start blank instead of an example company's.
 - The dashboard leads with money (open, won, follow-ups due); AI-quality numbers moved to their own section.
 
-Accounts, sync, short links and online acceptance were added next (see below). Still open: sending by text or email.
+Accounts, sync, short links, online acceptance, and send & track were added next (see below).
 
 ## Accounts, sync and online acceptance (Supabase, free tier)
 
@@ -142,6 +142,7 @@ Signing in is optional. Without an account everything stays in the browser, exac
 | Privacy | Row-level security: each painter can only read and change their own rows |
 | Short customer link | `…/#/q/<16-character code>`; the database function returns only the customer copy |
 | Accept online | Homeowner types their name; a database function records it once and marks the quote Won |
+| Send & track | "Text it" / "Email it" open the phone's own Messages or Mail with the message and link filled in (no paid SMS service); the painter sees when the customer opened the link and how many times |
 | Server-side AI | Edge Function `read-note` calls Gemini with a server secret, so no key is needed in the browser |
 | Never pauses | A daily GitHub Action calls a `ping` function, because free projects pause after 7 days idle |
 
@@ -160,5 +161,5 @@ they match).
 
 - Run the 6–8 painter interviews (experiment E1) and add their real voice notes to the eval set.
 - Score Gemini on the eval set (`GEMINI_API_KEY=… npm run eval`) and compare it with the built-in reader.
-- Send quotes by text or email from the app, and notify the painter when a quote is accepted.
+- Notify the painter instantly (push or email) when a quote is opened or accepted.
 - Photo capture on site, attached to the quote.

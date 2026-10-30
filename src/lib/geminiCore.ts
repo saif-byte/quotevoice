@@ -21,6 +21,7 @@ export const RESPONSE_SCHEMA = {
   properties: {
     customerName: nullable('STRING'),
     address: nullable('STRING'),
+    customerPhone: nullable('STRING', { description: 'Customer phone number if said, digits only' }),
     coats: nullable('INTEGER', { description: 'Coats for the whole job, if stated once for everything' }),
     heightFt: nullable('NUMBER', { description: 'Ceiling height for the whole job, if stated once for everything' }),
     paintIncluded: nullable('BOOLEAN', { description: 'false if the customer supplies the paint, true if the painter does, null if not said' }),

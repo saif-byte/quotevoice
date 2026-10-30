@@ -17,6 +17,9 @@ interface QuoteRow {
   share_token: string | null
   accepted_name: string | null
   accepted_at: string | null
+  first_viewed_at: string | null
+  last_viewed_at: string | null
+  view_count: number | null
 }
 
 const ALPHABET = 'abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789'
@@ -33,7 +36,9 @@ function client() {
   return supabase
 }
 
-export function rowFromQuote(q: Quote, settings: Settings): Omit<QuoteRow, 'accepted_name' | 'accepted_at'> {
+type WritableRow = Omit<QuoteRow, 'accepted_name' | 'accepted_at' | 'first_viewed_at' | 'last_viewed_at' | 'view_count'>
+
+export function rowFromQuote(q: Quote, settings: Settings): WritableRow {
   return {
     id: q.id,
     number: q.number,
@@ -52,6 +57,9 @@ export function quoteFromRow(row: QuoteRow): Quote {
     shareToken: row.share_token ?? undefined,
     acceptedName: row.accepted_name ?? undefined,
     acceptedAt: row.accepted_at ?? undefined,
+    firstViewedAt: row.first_viewed_at ?? undefined,
+    lastViewedAt: row.last_viewed_at ?? undefined,
+    viewCount: row.view_count ?? 0,
     decidedAt: row.data.decidedAt ?? row.accepted_at ?? undefined,
   }
 }
@@ -65,7 +73,7 @@ export interface CloudData {
 export async function fetchAccount(): Promise<CloudData> {
   const db = client()
   const [quotesRes, profileRes] = await Promise.all([
-    db.from('quotes').select('id, number, status, data, shared, share_token, accepted_name, accepted_at').order('created_at', { ascending: false }),
+    db.from('quotes').select('id, number, status, data, shared, share_token, accepted_name, accepted_at, first_viewed_at, last_viewed_at, view_count').order('created_at', { ascending: false }),
     db.from('profiles').select('business, rates').maybeSingle(),
   ])
   if (quotesRes.error) throw quotesRes.error
@@ -111,6 +119,15 @@ export async function fetchSharedQuote(token: string): Promise<PublicQuote | nul
   const { data, error } = await client().rpc('get_shared_quote', { p_token: token })
   if (error) throw error
   return (data as PublicQuote | null) ?? null
+}
+
+/** Tells the painter the homeowner opened the estimate. Failures are ignored: it's a nice-to-have. */
+export async function markQuoteViewed(token: string): Promise<void> {
+  try {
+    await client().rpc('mark_quote_viewed', { p_token: token })
+  } catch {
+    /* ignore */
+  }
 }
 
 export async function acceptSharedQuote(token: string, name: string): Promise<{ acceptedName: string; acceptedAt: string }> {

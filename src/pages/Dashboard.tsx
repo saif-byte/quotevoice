@@ -3,12 +3,12 @@ import { Link, useNavigate } from 'react-router-dom'
 import { WeeklyChart } from '../components/WeeklyChart'
 import { computeMetrics, editStats, weeklySent } from '../lib/metrics'
 import { formatMoney, totals } from '../lib/pricing'
-import { STATUS_LABEL, formatMinutes, shortDate } from '../lib/quoteHelpers'
+import { STATUS_LABEL, formatMinutes, shortDate, timeAgo } from '../lib/quoteHelpers'
 import type { QuoteStatus } from '../lib/types'
 import { useStore } from '../store'
 
 export function Dashboard() {
-  const { quotes, settings, saveQuote, loadSamples, clearSamples } = useStore()
+  const { quotes, settings, saveQuote, loadSamples, clearSamples, user } = useStore()
   const navigate = useNavigate()
   const tax = settings.rates.taxPct
   const m = useMemo(() => computeMetrics(quotes, tax), [quotes, tax])
@@ -49,7 +49,8 @@ export function Dashboard() {
   const followUps = openQuotes
     .map((q) => ({ q, days: Math.floor((Date.now() - new Date(q.finalizedAt ?? q.createdAt).getTime()) / DAY) }))
     .filter((x) => x.days >= 3)
-    .sort((a, b) => b.days - a.days)
+    // Opened-but-not-accepted first: they're interested. Then oldest first.
+    .sort((a, b) => Number(Boolean(b.q.firstViewedAt)) - Number(Boolean(a.q.firstViewedAt)) || b.days - a.days)
     .slice(0, 5)
   const quality = [
     { label: 'Time to quote', value: formatMinutes(m.medianMinutes), note: 'Typical time from first word to finished quote', target: 'Goal: under 3 min' },
@@ -96,7 +97,7 @@ export function Dashboard() {
         <section className="panel">
           <div className="panel-head">
             <h2>Time to follow up</h2>
-            <span className="muted small">Open quotes sent 3+ days ago</span>
+            <span className="muted small">Open quotes finished 3+ days ago; opened ones are warmest</span>
           </div>
           <ul className="follow-ups">
             {followUps.map(({ q, days }) => (
@@ -104,7 +105,16 @@ export function Dashboard() {
                 <Link to={`/quotes/${q.id}`}>
                   <span className="fu-name">{q.job.customerName || q.number}</span>
                   <span className="fu-meta">
-                    {q.number} · sent {days} days ago
+                    {q.number} · finished {days} days ago ·{' '}
+                    {q.firstViewedAt ? (
+                      <span className="fu-opened">opened {timeAgo(q.lastViewedAt ?? q.firstViewedAt)}</span>
+                    ) : q.shareToken && user ? (
+                      <span className="fu-unopened">not opened yet</span>
+                    ) : q.sentAt ? (
+                      `sent ${timeAgo(q.sentAt)}`
+                    ) : (
+                      <span className="fu-unopened">not sent from the app</span>
+                    )}
                   </span>
                   <span className="fu-total">{formatMoney(totals(q.lineItems, tax, q.discount).total)}</span>
                 </Link>

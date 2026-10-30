@@ -51,6 +51,7 @@ export interface RawRoom {
 export interface RawJob {
   customerName?: string | null
   address?: string | null
+  customerPhone?: string | null
   rooms: RawRoom[]
   coats?: number | null
   heightFt?: number | null
@@ -83,6 +84,9 @@ export interface Room {
 export interface JobSpec {
   customerName: string
   address: string
+  /** For sending the quote by text or email. */
+  customerPhone?: string
+  customerEmail?: string
   rooms: Room[]
   paintIncluded: boolean
   notes: string[]
@@ -150,6 +154,13 @@ export interface Quote {
   /** Set when the homeowner clicks Accept on the customer link. */
   acceptedName?: string
   acceptedAt?: string
+  /** When and how the painter sent it from the app. */
+  sentAt?: string
+  sentVia?: 'text' | 'email' | 'share' | 'copy'
+  /** When the homeowner opened the short link (from the database). */
+  firstViewedAt?: string
+  lastViewedAt?: string
+  viewCount?: number
 }
 
 export interface BusinessInfo {

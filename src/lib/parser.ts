@@ -305,6 +305,26 @@ export function extractCustomerName(original: string): string | null {
   return null
 }
 
+/**
+ * A phone number said in the note: "her number is six one four, five five five, oh one eight two".
+ * After words become digits that's "6 1 4, 5 5 5, 0 1 8 2"; digits are collected after a phone cue.
+ * Returns the cleaned-up note too, so the digits can't be mistaken for sizes or counts.
+ */
+export function extractPhone(lower: string): { phone: string | null; rest: string } {
+  const text = lower.replace(/\boh\b/g, '0')
+  const cue = /\b(?:phone(?: number)?|number|cell|mobile|call (?:him|her|them) at|reach (?:him|her|them) at|text (?:him|her|them) at)\b(?:\s+(?:is|at))?[\s:]*((?:\+?1[\s.-]*)?(?:\(?\d[\d\s().,-]{8,24}\d))/
+  const plain = /(\(?\b\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}\b)/
+  const m = text.match(cue) ?? text.match(plain)
+  if (!m) return { phone: null, rest: lower }
+  let digits = m[1].replace(/\D/g, '')
+  if (digits.length === 11 && digits.startsWith('1')) digits = digits.slice(1)
+  if (digits.length !== 10) return { phone: null, rest: lower }
+  const phone = `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`
+  const at = text.indexOf(m[1])
+  const rest = text.slice(0, at) + ' '.repeat(m[1].length) + text.slice(at + m[1].length)
+  return { phone, rest }
+}
+
 export function extractAddress(lower: string): string | null {
   const m = lower.match(
     /\b(\d{1,6}\s+(?:[a-z]+\s+){1,3}(?:street|st|avenue|ave|road|rd|drive|dr|lane|ln|court|ct|boulevard|blvd|way|place|pl|circle|cir|terrace|parkway|pkwy|trail|trl))\b/,
@@ -362,7 +382,8 @@ interface RoomAcc {
 
 export function parseNote(note: string): ParseResult {
   const assumptions: string[] = []
-  const lower = applyCorrections(wordsToNumbers(note.toLowerCase()))
+  const { phone, rest: withoutPhone } = extractPhone(applyCorrections(wordsToNumbers(note.toLowerCase())))
+  const lower = withoutPhone
   const skippedNotes: string[] = []
   const sentences = lower
     .split(/(?<=[.!?;])\s+|\n+/)
@@ -510,6 +531,7 @@ export function parseNote(note: string): ParseResult {
     raw: {
       customerName: extractCustomerName(note),
       address: extractAddress(lower),
+      customerPhone: phone,
       rooms: rooms.map((r) => r.room),
       coats: global.coats,
       heightFt: global.heightFt,

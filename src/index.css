@@ -233,6 +233,23 @@ main { padding: 32px 24px 80px; }
 .accept { background: var(--surface); border: 2px solid var(--ink); border-radius: var(--radius); padding: 22px; margin-top: 18px; display: grid; gap: 12px; }
 .accept h2 { margin: 0; }
 
+/* ---------- send & delivery ---------- */
+.send { background: var(--surface); border: 2px solid var(--ink); border-radius: var(--radius); padding: 18px 20px; margin-bottom: 20px; display: grid; gap: 12px; }
+.send-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.send-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.btn.disabled { opacity: 0.45; cursor: not-allowed; }
+.copy-field { display: block; width: 100%; margin-top: 8px; border: 1px solid var(--line-strong); border-radius: var(--radius-sm); padding: 8px 10px; font-size: 0.85rem; }
+.delivery { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font-size: 0.9rem; color: var(--muted); }
+.delivery li { display: flex; gap: 8px; align-items: baseline; }
+.delivery li::before { content: ''; width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--line-strong); flex: none; transform: translateY(1px); }
+.delivery li.done { color: var(--ink); }
+.delivery li.done::before { background: var(--won); border-color: var(--won); }
+.fu-opened { color: var(--won); font-weight: 600; }
+.fu-unopened { color: var(--caution-ink); }
+@media (max-width: 640px) {
+  .send-actions .btn { flex: 1 1 45%; }
+}
+
 /* ---------- dashboard ---------- */
 .kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; margin-bottom: 20px; }
 .kpi { background: var(--surface); padding: 18px 20px; }

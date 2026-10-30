@@ -314,6 +314,27 @@ function JobStep(props: {
           <span>Address</span>
           <input value={job.address} onChange={(e) => setJob({ ...job, address: e.target.value })} placeholder="Job address" />
         </label>
+        <label className="field">
+          <span>Customer mobile (for texting the quote)</span>
+          <input
+            type="tel"
+            inputMode="tel"
+            autoComplete="off"
+            value={job.customerPhone ?? ''}
+            onChange={(e) => setJob({ ...job, customerPhone: e.target.value })}
+            placeholder="(555) 123-4567"
+          />
+        </label>
+        <label className="field">
+          <span>Customer email (optional)</span>
+          <input
+            type="email"
+            autoComplete="off"
+            value={job.customerEmail ?? ''}
+            onChange={(e) => setJob({ ...job, customerEmail: e.target.value })}
+            placeholder="name@example.com"
+          />
+        </label>
       </div>
       <label className="check">
         <input type="checkbox" checked={job.paintIncluded} onChange={(e) => setJob({ ...job, paintIncluded: e.target.checked })} />
