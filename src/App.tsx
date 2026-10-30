@@ -1,4 +1,5 @@
 import { NavLink, Outlet, RouterProvider, createHashRouter, useParams } from 'react-router-dom'
+import { AccountMenu } from './components/AccountMenu'
 import { LiveAlerts, NotificationBell } from './components/Notifications'
 import { Account } from './pages/Account'
 import { Dashboard } from './pages/Dashboard'
@@ -52,19 +53,12 @@ const NAV = [
 ]
 
 function AccountLink() {
-  const { cloudEnabled, user, sync, authReady } = useStore()
-  if (!cloudEnabled || !authReady) return null
-  const status = { local: '', loading: 'Loading', synced: 'Synced', saving: 'Saving…', error: 'Not saved' }[sync]
+  // Signed out: a "Sign in" link. Signed in: the account menu on the right takes over.
+  const { cloudEnabled, user, authReady } = useStore()
+  if (!cloudEnabled || !authReady || user) return null
   return (
     <NavLink to="/account" className={({ isActive }) => `account-link ${isActive ? 'active' : ''}`}>
-      {user ? (
-        <>
-          <span className={`sync-dot ${sync}`} aria-hidden="true" />
-          <span>{status}</span>
-        </>
-      ) : (
-        'Sign in'
-      )}
+      Sign in
     </NavLink>
   )
 }
@@ -105,7 +99,10 @@ function Shell() {
           ))}
           <AccountLink />
         </nav>
-        <NotificationBell />
+        <div className="top-actions">
+          <NotificationBell />
+          <AccountMenu />
+        </div>
       </header>
       <main id="main">
         <DeviceQuotesBanner />

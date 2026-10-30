@@ -21,7 +21,7 @@ const RATE_FIELDS: { key: keyof RateCard; label: string; unit: string; step: num
 ]
 
 export function Settings() {
-  const { settings, updateSettings, loadSamples, clearSamples, resetAll, quotes, user } = useStore()
+  const { settings, updateSettings, loadSamples, clearSamples, resetAll, quotes, user, signOut } = useStore()
   const [draft, setDraft] = useState<SettingsT>(settings)
   const [saved, setSaved] = useState(false)
   const [showKey, setShowKey] = useState(false)
@@ -171,6 +171,18 @@ export function Settings() {
           </button>
         </div>
       </section>
+      {user && (
+        <section className="panel">
+          <h2>Account</h2>
+          <p className="small">
+            Signed in as <strong>{user.email}</strong>. Signing out keeps your quotes safe in your account; sign in again on
+            any device to get them back.
+          </p>
+          <button className="btn" onClick={() => void signOut()}>
+            Sign out
+          </button>
+        </section>
+      )}
     </div>
   )
 }
