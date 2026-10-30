@@ -1,4 +1,5 @@
 import { NavLink, Outlet, RouterProvider, createHashRouter, useParams } from 'react-router-dom'
+import { LiveAlerts, NotificationBell } from './components/Notifications'
 import { Account } from './pages/Account'
 import { Dashboard } from './pages/Dashboard'
 import { HowItWorks } from './pages/HowItWorks'
@@ -104,11 +105,13 @@ function Shell() {
           ))}
           <AccountLink />
         </nav>
+        <NotificationBell />
       </header>
       <main id="main">
         <DeviceQuotesBanner />
         <Outlet />
       </main>
+      <LiveAlerts />
     </div>
   )
 }

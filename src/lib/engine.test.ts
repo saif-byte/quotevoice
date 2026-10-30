@@ -8,6 +8,7 @@ import { decodeShared, encodeShared } from './share'
 import { applyCorrections, extractPhone, parseNote, wordsToNumbers } from './parser'
 import { buildMessage, formatPhone, isValidPhone, mailtoHref, smsHref } from './send'
 import { timeAgo } from './quoteHelpers'
+import { eventsFrom, newEvents, unreadCount } from './notifications'
 
 describe('shared Gemini file', () => {
   it('lists the same room types as the app', async () => {
@@ -203,5 +204,35 @@ describe('sending', () => {
     expect(timeAgo('2026-10-30T11:59:30Z', now)).toBe('just now')
     expect(timeAgo('2026-10-30T09:00:00Z', now)).toBe('3 hours ago')
     expect(timeAgo('2026-10-28T12:00:00Z', now)).toBe('2 days ago')
+  })
+})
+
+describe('notifications', () => {
+  const [base] = buildSampleQuotes(DEFAULT_RATES)
+  const q = { ...base, isSample: false, status: 'sent' as const }
+
+  it('creates accepted and opened events from quotes, newest first', () => {
+    const accepted = { ...q, firstViewedAt: '2026-10-30T10:00:00Z', acceptedAt: '2026-10-30T11:00:00Z', acceptedName: 'Jane Doe' }
+    const events = eventsFrom([accepted], 0)
+    expect(events.map((e) => e.kind)).toEqual(['accepted', 'opened'])
+    expect(events[0].customer).toBe('Jane Doe')
+  })
+
+  it('counts unread since the bell was last opened', () => {
+    const events = eventsFrom([{ ...q, firstViewedAt: '2026-10-30T10:00:00Z', acceptedAt: '2026-10-30T11:00:00Z' }], 0)
+    expect(unreadCount(events, null)).toBe(2)
+    expect(unreadCount(events, '2026-10-30T10:30:00Z')).toBe(1)
+    expect(unreadCount(events, '2026-10-30T12:00:00Z')).toBe(0)
+  })
+
+  it('only raises a live alert for something new', () => {
+    const before = [q]
+    const after = [{ ...q, acceptedAt: '2026-10-30T11:00:00Z' }]
+    expect(newEvents(before, after, 0).map((e) => e.kind)).toEqual(['accepted'])
+    expect(newEvents(after, after, 0)).toEqual([])
+  })
+
+  it('ignores sample quotes', () => {
+    expect(eventsFrom([{ ...q, isSample: true, acceptedAt: '2026-10-30T11:00:00Z' }], 0)).toEqual([])
   })
 })

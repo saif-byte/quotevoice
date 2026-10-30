@@ -144,6 +144,7 @@ Signing in is optional. Without an account everything stays in the browser, exac
 | Accept online | Homeowner types their name; a database function records it once and marks the quote Won |
 | Send & track | "Text it" / "Email it" open the phone's own Messages or Mail with the message and link filled in (no paid SMS service); the painter sees when the customer opened the link and how many times |
 | Server-side AI | Edge Function `read-note` calls Gemini with a server secret, so no key is needed in the browser |
+| Notifications | Bell with unread count, a live pop-up the moment a customer accepts (Supabase Realtime, with a once-a-minute check as backup), a "customer accepted" card on the dashboard, and optional device alerts; read state syncs across devices |
 | Never pauses | A daily GitHub Action calls a `ping` function, because free projects pause after 7 days idle |
 
 Database schema and policies: `supabase/migrations/`. Edge Function: `supabase/functions/read-note/`.
@@ -161,5 +162,5 @@ they match).
 
 - Run the 6–8 painter interviews (experiment E1) and add their real voice notes to the eval set.
 - Score Gemini on the eval set (`GEMINI_API_KEY=… npm run eval`) and compare it with the built-in reader.
-- Notify the painter instantly (push or email) when a quote is opened or accepted.
+- Push notifications to the painter's phone when the app is closed (needs a service worker and push service).
 - Photo capture on site, attached to the quote.

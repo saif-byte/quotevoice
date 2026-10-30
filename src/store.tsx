@@ -1,5 +1,14 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
-import { deleteQuoteRemote, fetchAccount, newShareToken, saveProfileRemote, saveQuotesRemote } from './lib/cloud'
+import {
+  deleteQuoteRemote,
+  fetchAccount,
+  markNotificationsSeenRemote,
+  newShareToken,
+  saveProfileRemote,
+  saveQuotesRemote,
+  subscribeToQuotes,
+} from './lib/cloud'
+import { eventText, newEvents, type QuoteEvent } from './lib/notifications'
 import { buildSampleQuotes } from './lib/seed'
 import { DEFAULT_SETTINGS, loadStore, nextQuoteNumber, saveStore, storageKey, type StoreData } from './lib/storage'
 import { supabase } from './lib/supabase'
@@ -43,6 +52,12 @@ interface StoreApi {
   signIn: (email: string, password: string) => Promise<void>
   signUp: (email: string, password: string) => Promise<{ needsConfirmation: boolean }>
   signOut: () => Promise<void>
+  // notifications
+  notificationsSeenAt: string | null
+  markNotificationsSeen: () => void
+  alerts: QuoteEvent[]
+  dismissAlert: (id: string) => void
+  liveConnected: boolean
 }
 
 const StoreContext = createContext<StoreApi | null>(null)
@@ -59,6 +74,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [sync, setSync] = useState<SyncState>('local')
   const [syncError, setSyncError] = useState<string | null>(null)
   const [deviceQuotes, setDeviceQuotes] = useState<Quote[]>([])
+  const [notificationsSeenAt, setNotificationsSeenAt] = useState<string | null>(null)
+  const [alerts, setAlerts] = useState<QuoteEvent[]>([])
+  const [liveConnected, setLiveConnected] = useState(false)
   const keyRef = useRef(storageKey(null))
   const dataRef = useRef(data)
   dataRef.current = data
@@ -80,6 +98,22 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     return () => sub.subscription.unsubscribe()
   }, [])
 
+  // ---- live alerts: on screen, plus a system notification when the app is in the background ----
+  const pushAlerts = useCallback((events: QuoteEvent[]) => {
+    if (events.length === 0) return
+    setAlerts((a) => [...events.filter((e) => !a.some((x) => x.id === e.id)), ...a].slice(0, 4))
+    if (typeof document !== 'undefined' && document.hidden && typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+      for (const e of events) {
+        const { title, detail } = eventText(e)
+        try {
+          new Notification(title, { body: detail, tag: e.id })
+        } catch {
+          /* some mobile browsers only allow notifications from a service worker */
+        }
+      }
+    }
+  }, [])
+
   // ---- load the right data when the account changes ----
   const loadAccount = useCallback(async (u: AccountUser, firstLoad: boolean) => {
     if (firstLoad) setSync('loading')
@@ -87,6 +121,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       const device = loadStore(storageKey(null))
       const remote = await fetchAccount()
       const samples = dataRef.current.quotes.filter((q) => q.isSample)
+      // Anything accepted or opened since the last check pops up as a live alert.
+      if (!firstLoad) pushAlerts(newEvents(dataRef.current.quotes, remote.quotes, dataRef.current.settings.rates.taxPct))
+      setNotificationsSeenAt(remote.notificationsSeenAt)
       const settings: Settings = {
         business: { ...DEFAULT_SETTINGS.business, ...(remote.business ?? device.settings.business) },
         rates: { ...DEFAULT_SETTINGS.rates, ...(remote.rates ?? device.settings.rates) },
@@ -104,7 +141,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       setSync('error')
       setSyncError(message(err))
     }
-  }, [])
+  }, [pushAlerts])
 
   useEffect(() => {
     const key = storageKey(user?.id)
@@ -114,6 +151,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       setSync('local')
       setSyncError(null)
       setDeviceQuotes([])
+      setAlerts([])
+      setNotificationsSeenAt(null)
       return
     }
     setData(loadStore(key)) // cached copy first, so the app opens instantly
@@ -133,6 +172,46 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       document.removeEventListener('visibilitychange', onFocus)
     }
   }, [user, loadAccount])
+
+  // Live: the database tells the app the moment a homeowner opens or accepts a quote.
+  useEffect(() => {
+    if (!user || !supabase) return
+    const stop = subscribeToQuotes(
+      user.id,
+      (remoteQuote) => {
+        const prev = dataRef.current.quotes
+        const local = prev.find((q) => q.id === remoteQuote.id)
+        if (!local) return
+        // Keep any unsynced local edits; take what only the homeowner can change from the database.
+        const merged = {
+          ...local,
+          status: remoteQuote.status,
+          acceptedName: remoteQuote.acceptedName,
+          acceptedAt: remoteQuote.acceptedAt,
+          firstViewedAt: remoteQuote.firstViewedAt,
+          lastViewedAt: remoteQuote.lastViewedAt,
+          viewCount: remoteQuote.viewCount,
+        }
+        const next = prev.map((q) => (q.id === merged.id ? merged : q))
+        pushAlerts(newEvents(prev, next, dataRef.current.settings.rates.taxPct))
+        setData((d) => ({ ...d, quotes: d.quotes.map((q) => (q.id === merged.id ? merged : q)) }))
+      },
+      setLiveConnected,
+    )
+    return () => {
+      stop()
+      setLiveConnected(false)
+    }
+  }, [user, pushAlerts])
+
+  // Backup if live updates are blocked (some networks): check every minute while the app is open.
+  useEffect(() => {
+    if (!user || liveConnected) return
+    const t = window.setInterval(() => {
+      if (document.visibilityState === 'visible') void loadAccount(user, false)
+    }, 60_000)
+    return () => window.clearInterval(t)
+  }, [user, liveConnected, loadAccount])
 
   useEffect(() => saveStore(data, keyRef.current), [data])
 
@@ -241,8 +320,17 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       signOut: async () => {
         await supabase?.auth.signOut()
       },
+      notificationsSeenAt,
+      markNotificationsSeen: () => {
+        const now = new Date().toISOString()
+        setNotificationsSeenAt(now)
+        if (user) void markNotificationsSeenRemote(user.id, now).catch(() => undefined)
+      },
+      alerts,
+      dismissAlert: (id) => setAlerts((a) => a.filter((x) => x.id !== id)),
+      liveConnected,
     }),
-    [data, saveQuote, remote, user, authReady, sync, syncError, retrySync, deviceQuotes, loadAccount],
+    [data, saveQuote, remote, user, authReady, sync, syncError, retrySync, deviceQuotes, loadAccount, notificationsSeenAt, alerts, liveConnected],
   )
 
   return <StoreContext.Provider value={api}>{children}</StoreContext.Provider>

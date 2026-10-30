@@ -3,12 +3,13 @@ import { Link, useNavigate } from 'react-router-dom'
 import { WeeklyChart } from '../components/WeeklyChart'
 import { computeMetrics, editStats, weeklySent } from '../lib/metrics'
 import { formatMoney, totals } from '../lib/pricing'
+import { eventsFrom } from '../lib/notifications'
 import { STATUS_LABEL, formatMinutes, shortDate, timeAgo } from '../lib/quoteHelpers'
 import type { QuoteStatus } from '../lib/types'
 import { useStore } from '../store'
 
 export function Dashboard() {
-  const { quotes, settings, saveQuote, loadSamples, clearSamples, user } = useStore()
+  const { quotes, settings, saveQuote, loadSamples, clearSamples, user, notificationsSeenAt, markNotificationsSeen } = useStore()
   const navigate = useNavigate()
   const tax = settings.rates.taxPct
   const m = useMemo(() => computeMetrics(quotes, tax), [quotes, tax])
@@ -45,6 +46,9 @@ export function Dashboard() {
     { label: 'Won', value: formatMoney(m.wonValue), note: m.decided ? `You won ${pct(m.winRate)} of ${m.decided} decided quotes` : 'No answers yet' },
     { label: 'Quotes sent', value: String(m.sentCount), note: m.draftCount ? `${m.draftCount} draft${m.draftCount > 1 ? 's' : ''} not finished` : 'No unfinished drafts' },
   ]
+  const newlyAccepted = user
+    ? eventsFrom(quotes, tax).filter((e) => e.kind === 'accepted' && (!notificationsSeenAt || e.at > notificationsSeenAt))
+    : []
   const DAY = 86400000
   const followUps = openQuotes
     .map((q) => ({ q, days: Math.floor((Date.now() - new Date(q.finalizedAt ?? q.createdAt).getTime()) / DAY) }))
@@ -81,6 +85,29 @@ export function Dashboard() {
             Clear sample data
           </button>
         </div>
+      )}
+
+      {newlyAccepted.length > 0 && (
+        <section className="won-card" aria-label="Newly accepted quotes">
+          <div className="won-head">
+            <h2>
+              {newlyAccepted.length === 1 ? 'A customer accepted your quote' : `${newlyAccepted.length} customers accepted your quotes`}
+            </h2>
+            <button className="link-btn" onClick={markNotificationsSeen}>
+              Mark as seen
+            </button>
+          </div>
+          <ul>
+            {newlyAccepted.map((e) => (
+              <li key={e.id}>
+                <Link to={`/quotes/${e.quoteId}`}>
+                  <strong>{e.customer}</strong> accepted {e.number} for {formatMoney(e.total)}
+                </Link>
+                <span className="muted small"> {timeAgo(e.at)}. Call to schedule the job.</span>
+              </li>
+            ))}
+          </ul>
+        </section>
       )}
 
       <section className="kpis" aria-label="Key numbers">

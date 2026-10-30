@@ -29,7 +29,7 @@ const PIPELINE = [
   {
     title: 'Accept',
     who: 'Customer',
-    body: "The homeowner opens the link on any phone, types their name and clicks Accept. The painter sees when the link was opened, and the quote turns to Won on their dashboard.",
+    body: "The homeowner opens the link on any phone, types their name and clicks Accept. The painter gets a live alert and a bell notification, sees when the link was opened, and the quote turns to Won.",
   },
 ]
 
@@ -142,7 +142,7 @@ export function HowItWorks() {
       <h2>Known limits of this version</h2>
       <ul>
         <li>Interior painting only. Exterior, cabinets and specialty finishes are noted but not priced.</li>
-        <li>Texts and emails go out from the painter's own phone; the painter isn't notified instantly when a quote is accepted, it shows on the dashboard.</li>
+        <li>Texts and emails go out from the painter's own phone. Alerts arrive while QuoteVoice is open (even in a background tab), not when it's fully closed.</li>
         <li>Voice input works in Chrome, Edge and Safari, not Firefox.</li>
         <li>Default rates are examples. Each painter sets their own in Settings.</li>
       </ul>

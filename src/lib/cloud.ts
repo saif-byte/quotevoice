@@ -68,13 +68,14 @@ export interface CloudData {
   quotes: Quote[]
   business: Partial<BusinessInfo> | null
   rates: Partial<RateCard> | null
+  notificationsSeenAt: string | null
 }
 
 export async function fetchAccount(): Promise<CloudData> {
   const db = client()
   const [quotesRes, profileRes] = await Promise.all([
     db.from('quotes').select('id, number, status, data, shared, share_token, accepted_name, accepted_at, first_viewed_at, last_viewed_at, view_count').order('created_at', { ascending: false }),
-    db.from('profiles').select('business, rates').maybeSingle(),
+    db.from('profiles').select('business, rates, notifications_seen_at').maybeSingle(),
   ])
   if (quotesRes.error) throw quotesRes.error
   if (profileRes.error) throw profileRes.error
@@ -84,6 +85,7 @@ export async function fetchAccount(): Promise<CloudData> {
     quotes: (quotesRes.data as QuoteRow[]).map(quoteFromRow),
     business: hasBusiness ? (profileRes.data!.business as Partial<BusinessInfo>) : null,
     rates: hasRates ? (profileRes.data!.rates as Partial<RateCard>) : null,
+    notificationsSeenAt: (profileRes.data?.notifications_seen_at as string | null) ?? null,
   }
 }
 
@@ -104,6 +106,28 @@ export async function saveProfileRemote(userId: string, settings: Settings): Pro
     .from('profiles')
     .upsert({ user_id: userId, business: settings.business, rates: settings.rates, updated_at: new Date().toISOString() })
   if (error) throw error
+}
+
+export async function markNotificationsSeenRemote(userId: string, seenAt: string): Promise<void> {
+  const { error } = await client().from('profiles').update({ notifications_seen_at: seenAt }).eq('user_id', userId)
+  if (error) throw error
+}
+
+/**
+ * Live updates: calls `onChange` whenever one of this painter's quotes changes in the
+ * database (e.g. a homeowner opens or accepts it). Returns a function that stops listening.
+ */
+export function subscribeToQuotes(userId: string, onChange: (q: Quote) => void, onStatus?: (live: boolean) => void): () => void {
+  const db = client()
+  const channel = db
+    .channel(`quotes-${userId}`)
+    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'quotes', filter: `user_id=eq.${userId}` }, (payload) => {
+      onChange(quoteFromRow(payload.new as QuoteRow))
+    })
+    .subscribe((status) => onStatus?.(status === 'SUBSCRIBED'))
+  return () => {
+    void db.removeChannel(channel)
+  }
 }
 
 // ---------- public, no login: what the homeowner uses ----------
