@@ -1,0 +1,99 @@
+import { describe, expect, it } from 'vitest'
+import { parseLocally } from './extract'
+import { computeMetrics, editStats } from './metrics'
+import { normalizeJob } from './normalize'
+import { coatFactor, DEFAULT_RATES, priceJob, totals, wallArea } from './pricing'
+import { buildSampleQuotes } from './seed'
+import { decodeShared, encodeShared } from './share'
+import { wordsToNumbers } from './parser'
+
+describe('wordsToNumbers', () => {
+  it('converts spoken numbers', () => {
+    expect(wordsToNumbers('twelve by fourteen, nine foot, twenty two')).toBe('12 by 14, 9 foot, 22')
+    expect(wordsToNumbers('a couple of doors')).toBe('2 doors')
+  })
+})
+
+describe('normalizeJob', () => {
+  it('fills gaps and records each assumption', () => {
+    const job = normalizeJob({ rooms: [{ name: 'Bedroom', type: 'bedroom' }] })
+    const room = job.rooms[0]
+    expect(room.lengthFt).toBe(12)
+    expect(room.heightFt).toBe(8)
+    expect(room.walls).toBe(true)
+    expect(room.coats).toBe(2)
+    expect(job.paintIncluded).toBe(true)
+    expect(job.assumptions.length).toBeGreaterThanOrEqual(4)
+  })
+
+  it('rejects nonsense values from the AI', () => {
+    const job = normalizeJob({ rooms: [{ name: 'X', type: 'nope' as never, lengthFt: -5, widthFt: 9999, heightFt: 2 }] })
+    expect(job.rooms[0].type).toBe('other')
+    expect(job.rooms[0].lengthFt).toBe(12)
+    expect(job.rooms[0].heightFt).toBe(8)
+  })
+})
+
+describe('pricing', () => {
+  const job = normalizeJob({
+    paintIncluded: true,
+    coats: 2,
+    heightFt: 8,
+    rooms: [{ name: 'Bedroom', type: 'bedroom', lengthFt: 12, widthFt: 10, walls: true, ceiling: true, doors: 1, windows: 1 }],
+  })
+
+  it('computes wall area minus openings', () => {
+    // perimeter 44 ft × 8 ft = 352, minus door 21 and window 15 = 316
+    expect(wallArea(job.rooms[0])).toBe(316)
+  })
+
+  it('prices lines from the rate card, never from the AI', () => {
+    const items = priceJob(job, DEFAULT_RATES)
+    const walls = items.find((i) => i.key === 'r1:walls')!
+    expect(walls.qty).toBe(316)
+    expect(walls.amount).toBeCloseTo(316 * 1.15, 2)
+    expect(items.some((i) => i.key === 'job:paint')).toBe(true)
+  })
+
+  it('applies the minimum job charge', () => {
+    const tiny = normalizeJob({ paintIncluded: false, coats: 2, heightFt: 8, rooms: [{ name: 'Powder room', type: 'powder_room', walls: true }] })
+    const items = priceJob(tiny, DEFAULT_RATES)
+    expect(totals(items, 0).total).toBeCloseTo(DEFAULT_RATES.minimumJob, 2)
+  })
+
+  it('scales labor with coats', () => {
+    expect(coatFactor(1)).toBe(0.7)
+    expect(coatFactor(2)).toBe(1)
+    expect(coatFactor(3)).toBeCloseTo(1.3)
+  })
+})
+
+describe('metrics', () => {
+  it('counts edit-free AI lines', () => {
+    const [q] = buildSampleQuotes(DEFAULT_RATES)
+    const edited = { ...q, lineItems: q.lineItems.map((l, i) => (i === 0 ? { ...l, rate: l.rate + 1 } : l)) }
+    const s = editStats(edited)
+    expect(s.total).toBe(q.aiLineItems.length)
+    expect(s.unchanged).toBe(q.aiLineItems.length - 1)
+  })
+
+  it('computes dashboard numbers from sample data', () => {
+    const m = computeMetrics(buildSampleQuotes(DEFAULT_RATES), 0)
+    expect(m.sentCount).toBeGreaterThan(10)
+    expect(m.editFreeRate).toBeGreaterThan(0.5)
+    expect(m.winRate).not.toBeNull()
+  })
+})
+
+describe('share links', () => {
+  it('round-trips a quote through the URL', () => {
+    const { job } = parseLocally('Quote for Ann Lee. Bedroom 12 by 12 walls.')
+    const items = priceJob(job, DEFAULT_RATES)
+    const data = encodeShared({
+      v: 1, number: 'Q-1', date: '2026-10-30', customerName: 'Ann Lee', address: '', taxPct: 0, notes: [],
+      business: { name: 'B', phone: '', email: '', license: '', validDays: 30 }, lineItems: items,
+    })
+    expect(decodeShared(data)?.customerName).toBe('Ann Lee')
+    expect(decodeShared('garbage')).toBeNull()
+  })
+})
