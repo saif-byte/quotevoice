@@ -1,5 +1,5 @@
 import { compressToEncodedURIComponent, decompressFromEncodedURIComponent } from 'lz-string'
-import type { BusinessInfo, LineItem } from './types'
+import type { BusinessInfo, Discount, LineItem } from './types'
 
 /**
  * Customer share links with no server: the quote itself is compressed into the
@@ -16,6 +16,7 @@ export interface SharedQuote {
   lineItems: Pick<LineItem, 'description' | 'qty' | 'unit' | 'rate' | 'amount'>[]
   taxPct: number
   notes: string[]
+  discount?: Discount
 }
 
 export function encodeShared(q: SharedQuote): string {

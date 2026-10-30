@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { QuoteDocument } from '../components/QuoteDocument'
 import { editStats, minutesToQuote, wasOverridden } from '../lib/metrics'
-import { formatMoney, totals } from '../lib/pricing'
+import { describeDiscount, formatMoney, totals } from '../lib/pricing'
 import { STATUS_LABEL, formatMinutes, toShared } from '../lib/quoteHelpers'
 import { shareUrl } from '../lib/share'
 import type { QuoteStatus } from '../lib/types'
@@ -32,7 +32,7 @@ export function QuoteView() {
   const shared = toShared(q, settings)
   const stats = editStats(q)
   const aiTotal = totals(q.aiLineItems, settings.rates.taxPct).total
-  const finalTotal = totals(q.lineItems, settings.rates.taxPct).total
+  const final = totals(q.lineItems, settings.rates.taxPct, q.discount)
 
   const setStatus = (status: QuoteStatus) =>
     saveQuote({
@@ -115,8 +115,17 @@ export function QuoteView() {
                 {formatMoney(aiTotal)}
                 {wasOverridden(q, settings.rates.taxPct) && <span className="flag"> changed by over 10%</span>}
               </dd>
+              {final.discount > 0 && q.discount && (
+                <>
+                  <dt>Discount given</dt>
+                  <dd>
+                    −{formatMoney(final.discount)}
+                    <span className="flag-quiet">{describeDiscount(q.discount).replace(/^Discount /, '')}</span>
+                  </dd>
+                </>
+              )}
               <dt>Final total</dt>
-              <dd>{formatMoney(finalTotal)}</dd>
+              <dd>{formatMoney(final.total)}</dd>
             </dl>
           </section>
 

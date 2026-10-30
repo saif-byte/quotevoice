@@ -17,8 +17,8 @@ Quoting is unpaid admin that eats evenings and loses jobs.
 3. **Gaps are filled and flagged.** Anything the painter didn't say (ceiling height, room size, coats) gets a sensible
    default, and every default is shown as "check this" before the quote goes out.
 4. **Code prices the job** using the painter's own rate card. The AI never sets a price.
-5. **Review, finalize, send.** The painter edits any line, then sends a link the homeowner can open on any phone or
-   print to PDF.
+5. **Review, finalize, send.** The painter edits any line, optionally adds a discount (% or $, with a reason shown to
+   the customer), then sends a link the homeowner can open on any phone or print to PDF.
 6. **Dashboard** tracks quotes sent, money waiting on an answer, win rate, time to quote, and how often the AI's draft
    was sent without edits.
 

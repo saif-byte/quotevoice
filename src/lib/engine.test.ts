@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { parseLocally } from './extract'
 import { computeMetrics, editStats } from './metrics'
 import { normalizeJob } from './normalize'
-import { coatFactor, DEFAULT_RATES, priceJob, totals, wallArea } from './pricing'
+import { coatFactor, DEFAULT_RATES, discountAmount, priceJob, totals, wallArea } from './pricing'
 import { buildSampleQuotes } from './seed'
 import { decodeShared, encodeShared } from './share'
 import { wordsToNumbers } from './parser'
@@ -68,6 +68,34 @@ describe('pricing', () => {
   })
 })
 
+describe('discounts', () => {
+  const items = [{ amount: 1000 }]
+
+  it('takes a percentage off before tax', () => {
+    const t = totals(items, 10, { type: 'percent', value: 10, reason: '' })
+    expect(t.discount).toBe(100)
+    expect(t.tax).toBe(90)
+    expect(t.total).toBe(990)
+  })
+
+  it('takes a fixed amount off', () => {
+    expect(totals(items, 0, { type: 'amount', value: 150, reason: 'Returning customer' }).total).toBe(850)
+  })
+
+  it('never takes the price below zero', () => {
+    expect(discountAmount(1000, { type: 'amount', value: 5000, reason: '' })).toBe(1000)
+    expect(discountAmount(1000, { type: 'percent', value: 250, reason: '' })).toBe(1000)
+    expect(discountAmount(1000, { type: 'percent', value: -5, reason: '' })).toBe(0)
+  })
+
+  it('is ignored by the AI-quality metric', () => {
+    const [q] = buildSampleQuotes(DEFAULT_RATES)
+    const discounted = { ...q, discount: { type: 'percent' as const, value: 50, reason: '' } }
+    expect(editStats(discounted).unchanged).toBe(editStats(q).unchanged)
+    expect(computeMetrics([discounted], 0).overrideRate).toBe(computeMetrics([q], 0).overrideRate)
+  })
+})
+
 describe('metrics', () => {
   it('counts edit-free AI lines', () => {
     const [q] = buildSampleQuotes(DEFAULT_RATES)
@@ -94,6 +122,8 @@ describe('share links', () => {
       business: { name: 'B', phone: '', email: '', license: '', validDays: 30 }, lineItems: items,
     })
     expect(decodeShared(data)?.customerName).toBe('Ann Lee')
+    const withDiscount = encodeShared({ ...decodeShared(data)!, discount: { type: 'amount', value: 50, reason: 'Repeat job' } })
+    expect(decodeShared(withDiscount)?.discount?.value).toBe(50)
     expect(decodeShared('garbage')).toBeNull()
   })
 })

@@ -1,9 +1,9 @@
-import { formatMoney, totals } from '../lib/pricing'
+import { describeDiscount, formatMoney, totals } from '../lib/pricing'
 import type { SharedQuote } from '../lib/share'
 
 /** The customer-facing quote. Used inside the app, on share links, and for printing. */
 export function QuoteDocument({ q }: { q: SharedQuote }) {
-  const t = totals(q.lineItems, q.taxPct)
+  const t = totals(q.lineItems, q.taxPct, q.discount)
   const date = new Date(q.date)
   const validUntil = new Date(date.getTime() + q.business.validDays * 86400000)
   const fmt = (d: Date) => d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
@@ -64,6 +64,12 @@ export function QuoteDocument({ q }: { q: SharedQuote }) {
             <td colSpan={3}>Subtotal</td>
             <td className="num">{formatMoney(t.subtotal)}</td>
           </tr>
+          {t.discount > 0 && q.discount && (
+            <tr className="doc-discount">
+              <td colSpan={3}>{describeDiscount(q.discount)}</td>
+              <td className="num">−{formatMoney(t.discount)}</td>
+            </tr>
+          )}
           {q.taxPct > 0 && (
             <tr>
               <td colSpan={3}>Tax ({q.taxPct}%)</td>

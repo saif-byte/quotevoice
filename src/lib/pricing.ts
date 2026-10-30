@@ -1,5 +1,5 @@
 import { ROOMS } from './rooms'
-import type { JobSpec, LineItem, RateCard, Room } from './types'
+import type { Discount, JobSpec, LineItem, RateCard, Room } from './types'
 
 /**
  * Pricing engine: plain, deterministic code. The AI never sets a price.
@@ -117,14 +117,30 @@ export function priceJob(job: JobSpec, rates: RateCard): LineItem[] {
 
 export interface Totals {
   subtotal: number
+  /** Money taken off (always >= 0). */
+  discount: number
   tax: number
   total: number
 }
 
-export function totals(items: { amount: number }[], taxPct: number): Totals {
+/** Discount in dollars, capped so the price can never go below zero. */
+export function discountAmount(subtotal: number, discount: Discount | undefined): number {
+  if (!discount || !(discount.value > 0) || subtotal <= 0) return 0
+  const raw = discount.type === 'percent' ? (subtotal * Math.min(discount.value, 100)) / 100 : discount.value
+  return roundMoney(Math.min(raw, subtotal))
+}
+
+export function describeDiscount(discount: Discount): string {
+  const size = discount.type === 'percent' ? `${discount.value}%` : formatMoney(discount.value)
+  return discount.reason.trim() ? `Discount (${size}, ${discount.reason.trim()})` : `Discount (${size})`
+}
+
+/** Subtotal → minus discount → plus tax on the discounted price → total. */
+export function totals(items: { amount: number }[], taxPct: number, discount?: Discount): Totals {
   const subtotal = roundMoney(items.reduce((s, i) => s + i.amount, 0))
-  const tax = roundMoney((subtotal * taxPct) / 100)
-  return { subtotal, tax, total: roundMoney(subtotal + tax) }
+  const off = discountAmount(subtotal, discount)
+  const tax = roundMoney(((subtotal - off) * taxPct) / 100)
+  return { subtotal, discount: off, tax, total: roundMoney(subtotal - off + tax) }
 }
 
 export function formatMoney(n: number): string {

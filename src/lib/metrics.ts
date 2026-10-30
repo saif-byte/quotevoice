@@ -21,10 +21,13 @@ export function editStats(q: Quote): { unchanged: number; total: number } {
 }
 
 export function quoteTotal(q: Quote, taxPct: number): number {
-  return totals(q.lineItems, taxPct).total
+  return totals(q.lineItems, taxPct, q.discount).total
 }
 
-/** True if the painter moved the total by more than 10% from the AI's first draft. */
+/**
+ * True if the painter moved the total by more than 10% from the AI's first draft.
+ * Discounts are left out on purpose: they're a sales decision, not a correction of the AI.
+ */
 export function wasOverridden(q: Quote, taxPct: number): boolean {
   const ai = totals(q.aiLineItems, taxPct).total
   const final = totals(q.lineItems, taxPct).total

@@ -76,7 +76,11 @@ typical 16 × 4 ft."* The painter sees these in yellow before pricing.
 
 1. **Record the job**: mic button (Web Speech API) or typing, plus sample notes for demos.
 2. **Check what was heard**: assumptions list, editable room cards, customer and address.
-3. **Check the price**: every line editable, add or remove lines, live totals. Then save a draft or finalize.
+3. **Check the price**: every line editable, add or remove lines, optional discount (% or $ off, with a reason the
+   customer sees), live totals. Then save a draft or finalize.
+
+Discounts are applied after the line items and before tax, and capped so the price can't go below zero. They're kept
+out of the AI-quality metrics on purpose: a discount is a sales decision, not a correction of the AI's reading.
 
 The timer starts at the first word, and finalizing records the time, giving the **time to quote** metric.
 

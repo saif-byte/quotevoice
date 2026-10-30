@@ -114,7 +114,7 @@ export function Dashboard() {
                     </td>
                     <td>{q.job.customerName || <span className="muted">No name</span>}</td>
                     <td className="hide-sm">{q.job.rooms.length}</td>
-                    <td className="num">{formatMoney(totals(q.lineItems, tax).total)}</td>
+                    <td className="num">{formatMoney(totals(q.lineItems, tax, q.discount).total)}</td>
                     <td className="hide-sm">
                       {s.unchanged}/{s.total}
                     </td>

@@ -112,6 +112,14 @@ export interface LineItem {
   amount: number
 }
 
+/** A discount the painter agrees to, applied after the line items and before tax. */
+export interface Discount {
+  type: 'percent' | 'amount'
+  value: number
+  /** Optional reason shown to the customer, e.g. "Returning customer". */
+  reason: string
+}
+
 export type QuoteStatus = 'draft' | 'sent' | 'won' | 'lost'
 export type ExtractorName = 'gemini' | 'parser'
 
@@ -127,6 +135,7 @@ export interface Quote {
   aiLineItems: LineItem[]
   /** Line items as the painter finally sent them. */
   lineItems: LineItem[]
+  discount?: Discount
   /** When the painter started recording/typing, and when they finalized. */
   captureStartedAt: string
   finalizedAt?: string

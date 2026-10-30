@@ -3,10 +3,10 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useSpeech } from '../hooks/useSpeech'
 import { extractJob } from '../lib/extract'
 import { newId } from '../lib/normalize'
-import { formatMoney, priceJob, roundMoney, totals } from '../lib/pricing'
+import { describeDiscount, formatMoney, priceJob, roundMoney, totals } from '../lib/pricing'
 import { ROOMS, ROOM_TYPES } from '../lib/rooms'
 import { SAMPLE_NOTES } from '../lib/samples'
-import type { ExtractorName, JobSpec, LineItem, Prep, Quote, Room } from '../lib/types'
+import type { Discount, ExtractorName, JobSpec, LineItem, Prep, Quote, Room } from '../lib/types'
 import { useStore } from '../store'
 
 type Step = 'capture' | 'job' | 'price'
@@ -32,6 +32,7 @@ export function NewQuote() {
   const [job, setJob] = useState<JobSpec | null>(existing?.job ?? null)
   const [aiLines, setAiLines] = useState<LineItem[]>(existing?.aiLineItems ?? [])
   const [lines, setLines] = useState<LineItem[]>(existing?.lineItems ?? [])
+  const [discount, setDiscount] = useState<Discount | undefined>(existing?.discount)
   const [quoteId] = useState(existing?.id ?? newId('q'))
   const [number] = useState(existing?.number ?? nextNumber())
 
@@ -85,6 +86,7 @@ export function NewQuote() {
       job: job!,
       aiLineItems: aiLines,
       lineItems: lines,
+      discount: discount && discount.value > 0 ? discount : undefined,
       captureStartedAt: startedAt ?? now,
       finalizedAt: status === 'draft' ? undefined : (existing?.finalizedAt ?? now),
       decidedAt: existing?.decidedAt,
@@ -203,6 +205,8 @@ export function NewQuote() {
           lines={lines}
           setLines={setLines}
           taxPct={settings.rates.taxPct}
+          discount={discount}
+          setDiscount={setDiscount}
           onBack={() => setStep('job')}
           onDraft={() => save(false)}
           onFinalize={() => save(true)}
@@ -377,13 +381,16 @@ function PriceStep(props: {
   lines: LineItem[]
   setLines: (l: LineItem[]) => void
   taxPct: number
+  discount: Discount | undefined
+  setDiscount: (d: Discount | undefined) => void
   onBack: () => void
   onDraft: () => void
   onFinalize: () => void
   finalizeLabel: string
 }) {
-  const { lines, setLines } = props
-  const t = useMemo(() => totals(lines, props.taxPct), [lines, props.taxPct])
+  const { lines, setLines, discount, setDiscount } = props
+  const t = useMemo(() => totals(lines, props.taxPct, discount), [lines, props.taxPct, discount])
+  const discountTooBig = !!discount && discount.value > 0 && (discount.type === 'percent' ? discount.value > 100 : discount.value > t.subtotal)
 
   const update = (i: number, patch: Partial<LineItem>) => {
     setLines(
@@ -436,9 +443,59 @@ function PriceStep(props: {
         Add a line
       </button>
 
+      <div className="discount">
+        {!discount ? (
+          <button type="button" className="btn ghost" onClick={() => setDiscount({ type: 'percent', value: 10, reason: '' })}>
+            Add a discount
+          </button>
+        ) : (
+          <fieldset className="discount-box">
+            <legend>Discount</legend>
+            <div className="discount-row">
+              <div className="seg seg-sm" role="group" aria-label="Discount type">
+                <button type="button" className={discount.type === 'percent' ? 'on' : ''} aria-pressed={discount.type === 'percent'} onClick={() => setDiscount({ ...discount, type: 'percent' })}>
+                  % off
+                </button>
+                <button type="button" className={discount.type === 'amount' ? 'on' : ''} aria-pressed={discount.type === 'amount'} onClick={() => setDiscount({ ...discount, type: 'amount' })}>
+                  $ off
+                </button>
+              </div>
+              <label className="field compact discount-value">
+                <span>{discount.type === 'percent' ? 'Percent' : 'Amount'}</span>
+                <div className="with-suffix">
+                  <input
+                    type="number"
+                    inputMode="decimal"
+                    min={0}
+                    step={discount.type === 'percent' ? 1 : 5}
+                    value={discount.value}
+                    onChange={(e) => setDiscount({ ...discount, value: Math.max(0, Number(e.target.value) || 0) })}
+                  />
+                  <span className="suffix">{discount.type === 'percent' ? '%' : '$'}</span>
+                </div>
+              </label>
+              <label className="field compact discount-reason">
+                <span>Reason shown to customer (optional)</span>
+                <input value={discount.reason} placeholder="e.g. Returning customer" onChange={(e) => setDiscount({ ...discount, reason: e.target.value })} />
+              </label>
+              <button type="button" className="icon-btn" aria-label="Remove discount" onClick={() => setDiscount(undefined)}>
+                ×
+              </button>
+            </div>
+            {discountTooBig && <p className="small warn-text">That's more than the subtotal, so the discount is capped at {formatMoney(t.subtotal)}.</p>}
+          </fieldset>
+        )}
+      </div>
+
       <dl className="totals">
         <dt>Subtotal</dt>
         <dd>{formatMoney(t.subtotal)}</dd>
+        {t.discount > 0 && discount && (
+          <>
+            <dt>{describeDiscount(discount)}</dt>
+            <dd className="minus">−{formatMoney(t.discount)}</dd>
+          </>
+        )}
         {props.taxPct > 0 && (
           <>
             <dt>Tax ({props.taxPct}%)</dt>

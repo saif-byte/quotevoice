@@ -13,6 +13,7 @@ export function toShared(q: Quote, settings: Settings): SharedQuote {
     taxPct: settings.rates.taxPct,
     // Internal notes ("mentioned but not priced") stay in the app, not on the customer copy.
     notes: [],
+    discount: q.discount && q.discount.value > 0 ? q.discount : undefined,
   }
 }
 
