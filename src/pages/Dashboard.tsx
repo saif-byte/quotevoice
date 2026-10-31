@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { DemoVideo } from '../components/DemoVideo'
 import { WeeklyChart } from '../components/WeeklyChart'
 import { computeMetrics, editStats, weeklySent } from '../lib/metrics'
 import { formatMoney, totals } from '../lib/pricing'
@@ -35,6 +36,7 @@ export function Dashboard() {
             </button>
           </div>
         </div>
+        <DemoVideo className="hero-video" />
       </div>
     )
   }

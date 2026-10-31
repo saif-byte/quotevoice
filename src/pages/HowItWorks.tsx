@@ -1,3 +1,4 @@
+import { DemoVideo } from '../components/DemoVideo'
 import { Link } from 'react-router-dom'
 
 const PIPELINE = [
@@ -54,6 +55,8 @@ export function HowItWorks() {
         competitor has often won the work. QuoteVoice lets a painter say the job out loud in the van, send an itemized
         estimate in a few minutes, and get it accepted online.
       </p>
+
+      <DemoVideo />
 
       <h2>From voice note to accepted quote</h2>
       <ol className="pipeline">
