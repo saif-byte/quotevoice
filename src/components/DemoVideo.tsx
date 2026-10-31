@@ -1,13 +1,14 @@
 const BASE = import.meta.env.BASE_URL
 
 /** The 1-minute product video. Loads nothing until played, so the page stays fast. */
-export function DemoVideo({ className = '' }: { className?: string }) {
+export function DemoVideo({ className = '', autoPlay = false }: { className?: string; autoPlay?: boolean }) {
   return (
     <figure className={`demo-video ${className}`}>
       <video
         controls
         playsInline
-        preload="none"
+        preload={autoPlay ? 'auto' : 'none'}
+        autoPlay={autoPlay}
         poster={`${BASE}media/quotevoice-demo-poster.jpg`}
         aria-label="QuoteVoice in one minute: a voice note becomes a priced quote the customer accepts online"
       >

@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { DemoVideo } from '../components/DemoVideo'
+import { DemoVideoButton } from '../components/DemoVideoButton'
 import { WeeklyChart } from '../components/WeeklyChart'
 import { computeMetrics, editStats, weeklySent } from '../lib/metrics'
 import { formatMoney, totals } from '../lib/pricing'
@@ -68,9 +69,12 @@ export function Dashboard() {
     <div className="page">
       <div className="page-head">
         <h1>Dashboard</h1>
-        <Link className="btn primary" to="/new">
-          New quote
-        </Link>
+        <div className="head-actions">
+          <DemoVideoButton />
+          <Link className="btn primary" to="/new">
+            New quote
+          </Link>
+        </div>
       </div>
 
       {!settings.business.name && (
