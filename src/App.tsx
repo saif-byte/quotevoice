@@ -5,6 +5,8 @@ import { LiveAlerts, NotificationBell } from './components/Notifications'
 import { Account } from './pages/Account'
 import { Dashboard } from './pages/Dashboard'
 import { HowItWorks } from './pages/HowItWorks'
+import { Recruiters } from './pages/Recruiters'
+import { CONTACT, isDemoEmail } from './lib/demo'
 import { NewQuote } from './pages/NewQuote'
 import { QuoteView } from './pages/QuoteView'
 import { Settings } from './pages/Settings'
@@ -32,6 +34,7 @@ const router = createHashRouter([
       { path: '/quotes/:id/edit', element: <EditQuote /> },
       { path: '/settings', element: <Settings /> },
       { path: '/how', element: <HowItWorks /> },
+      { path: '/recruiters', element: <Recruiters /> },
       { path: '/account', element: <Account /> },
       { path: '*', element: <Dashboard /> },
     ],
@@ -51,6 +54,7 @@ const NAV = [
   { to: '/new', label: 'New quote', end: false },
   { to: '/how', label: 'How it works', end: false },
   { to: '/settings', label: 'Settings', end: false },
+  { to: '/recruiters', label: 'For recruiters', end: false },
 ]
 
 function AccountLink() {
@@ -61,6 +65,23 @@ function AccountLink() {
     <NavLink to="/account" className={({ isActive }) => `account-link ${isActive ? 'active' : ''}`}>
       Sign in
     </NavLink>
+  )
+}
+
+function DemoBanner() {
+  // Shown while someone is inside the shared recruiter demo account.
+  const { user } = useStore()
+  if (!isDemoEmail(user?.email)) return null
+  return (
+    <div className="demo-banner" role="status">
+      <span>
+        <b>You're in the demo account.</b> Try anything: it resets itself 30 minutes after the last change.
+      </span>
+      <span>
+        Built by {CONTACT.name} · <a href={`mailto:${CONTACT.email}`}>{CONTACT.email}</a> ·{' '}
+        <NavLink to="/recruiters">Recruiter page</NavLink>
+      </span>
+    </div>
   )
 }
 
@@ -106,6 +127,7 @@ function Shell() {
         </div>
       </header>
       <main id="main">
+        <DemoBanner />
         <DeviceQuotesBanner />
         <Outlet />
       </main>

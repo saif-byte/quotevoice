@@ -550,3 +550,45 @@ code { background: var(--primer); border: 1px solid var(--line); border-radius: 
   .onb-rates { grid-template-columns: 1fr; }
   .onb-finish .btn { width: 100%; }
 }
+
+/* ---------- recruiter page ---------- */
+.recruiters { max-width: 1120px; }
+.rec-hero { padding: 12px 0 8px; }
+.rec-kicker { font-size: 0.8rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--tape-ink); margin: 0 0 8px; }
+.rec-hero h1 { font-size: clamp(2rem, 4.6vw, 3.1rem); font-weight: 800; font-variation-settings: 'wdth' 116; line-height: 1.05; max-width: 22ch; }
+.rec-lede { font-size: 1.12rem; color: var(--ink-2); max-width: 62ch; margin: 14px 0 0; }
+.rec-contact { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+.rec-email { font-weight: 600; }
+.rec-copy { font-size: 0.8rem; color: var(--tape-ink); font-weight: 700; margin-left: 6px; }
+.rec-facts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 28px 0; }
+.rec-fact { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; display: grid; gap: 4px; }
+.rec-fact strong { font-size: 1.8rem; font-variation-settings: 'wdth' 112; font-weight: 800; line-height: 1.05; }
+.rec-fact span { font-size: 0.88rem; color: var(--muted); }
+.rec-demo { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; border: 2px solid var(--tape); }
+.rec-demo h2, .rec-map h2, .rec-video h2, .rec-cta h2 { font-size: 1.4rem; margin-bottom: 6px; }
+.rec-demo-actions { margin: 16px 0 10px; display: grid; gap: 6px; justify-items: start; }
+.rec-creds { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; margin: 12px 0 0; padding: 12px 14px; background: var(--primer); border-radius: var(--radius-sm); font-size: 0.92rem; }
+.rec-creds dt { color: var(--muted); }
+.rec-creds dd { margin: 0; font-weight: 600; word-break: break-all; }
+.mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+.rec-tour { margin: 8px 0 0; padding-left: 20px; display: grid; gap: 10px; color: var(--ink-2); }
+.rec-map { margin: 36px 0; }
+.rec-section-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-bottom: 14px; }
+.rec-section-head > div:first-child { max-width: 60ch; }
+.rec-downloads { display: flex; gap: 10px; flex-wrap: wrap; }
+.rec-map-img { display: block; position: relative; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: #fff; box-shadow: 0 18px 50px rgba(30, 43, 69, 0.12); }
+.rec-map-img img { display: block; width: 100%; height: auto; }
+.rec-zoom { position: absolute; right: 12px; top: 12px; background: var(--ink); color: #fff; font-size: 0.85rem; font-weight: 650; padding: 6px 12px; border-radius: 999px; }
+.rec-video { margin: 36px 0; }
+.rec-video .demo-video { margin-top: 10px; }
+.rec-cta { display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap; margin-bottom: 20px; }
+.rec-cta > div { max-width: 60ch; }
+.demo-banner { display: flex; justify-content: space-between; gap: 8px 16px; flex-wrap: wrap; background: var(--tape-wash); border: 1px solid #bcd9f3; color: var(--ink); border-radius: var(--radius); padding: 10px 14px; margin-bottom: 16px; font-size: 0.92rem; }
+.demo-banner a { color: var(--tape-ink); font-weight: 650; }
+@media (max-width: 760px) {
+  .rec-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .rec-demo { grid-template-columns: 1fr; }
+  .rec-contact .btn { width: 100%; justify-content: center; }
+}
+.recruiter-link { text-align: center; color: var(--muted); margin: 0 auto 24px; }
+.recruiter-link a { color: var(--tape-ink); font-weight: 650; }

@@ -12,6 +12,7 @@ import {
 import { eventText, newEvents, type QuoteEvent } from './lib/notifications'
 import { buildSampleQuotes } from './lib/seed'
 import { DEFAULT_SETTINGS, loadStore, nextQuoteNumber, saveStore, storageKey, type StoreData } from './lib/storage'
+import { isDemoEmail } from './lib/demo'
 import { supabase } from './lib/supabase'
 import type { Quote, Settings } from './lib/types'
 
@@ -329,7 +330,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         return { needsConfirmation: !res.session }
       },
       signOut: async () => {
-        await supabase?.auth.signOut()
+        // The demo account is shared: signing out must only end this browser's session,
+        // not every recruiter's who is using it at the same time.
+        await supabase?.auth.signOut(isDemoEmail(user?.email) ? { scope: 'local' } : undefined)
       },
       notificationsSeenAt,
       markNotificationsSeen: () => {

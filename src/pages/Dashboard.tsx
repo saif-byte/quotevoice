@@ -38,6 +38,9 @@ export function Dashboard() {
           </div>
         </div>
         <DemoVideo className="hero-video" />
+        <p className="recruiter-link">
+          Recruiter or hiring manager? <Link to="/recruiters">See how QuoteVoice was built and try the demo account →</Link>
+        </p>
       </div>
     )
   }
