@@ -1,0 +1,3245 @@
+{
+ "t0": "2026-11-01T10:00:00.000Z",
+ "business": {
+  "name": "Brightline Painting (Demo)",
+  "phone": "(555) 010-0142",
+  "email": "demo@example.com",
+  "license": "DEMO-0001",
+  "validDays": 30
+ },
+ "rates": {
+  "wallPerSqFt": 1.15,
+  "ceilingPerSqFt": 1,
+  "trimPerLinFt": 1.5,
+  "doorEach": 65,
+  "windowEach": 45,
+  "prepLightPerRoom": 60,
+  "prepHeavyPerRoom": 180,
+  "wallpaperPerSqFt": 1.25,
+  "wallpaperBorderPerLinFt": 2,
+  "paintPerGallon": 48,
+  "coverageSqFtPerGallon": 350,
+  "minimumJob": 450,
+  "taxPct": 0
+ },
+ "quotes": [
+  {
+   "id": "demo-01",
+   "number": "Q-1001",
+   "status": "won",
+   "data": {
+    "id": "demo-01",
+    "number": "Q-1001",
+    "createdAt": "2026-09-22T09:57:36.000Z",
+    "status": "won",
+    "transcript": "Quote for Sarah Johnson at 42 Maple Street. Living room is about 16 by 20 with nine foot ceilings, walls and ceiling, two coats, plus the baseboards. Some nail holes to patch. Master bedroom is 14 by 15, walls only, they're going from a dark navy to white so it'll need an extra coat. Two doors and two windows in there. Hallway walls and trim too. We are supplying the paint.",
+    "extractor": "parser",
+    "job": {
+     "customerName": "Sarah Johnson",
+     "address": "42 Maple Street",
+     "customerPhone": "",
+     "customerEmail": "",
+     "rooms": [
+      {
+       "id": "r1",
+       "name": "Living room",
+       "type": "living_room",
+       "lengthFt": 20,
+       "widthFt": 16,
+       "heightFt": 9,
+       "walls": true,
+       "ceiling": true,
+       "trim": true,
+       "doors": 0,
+       "windows": 0,
+       "prep": "light",
+       "wallpaper": false,
+       "wallpaperBorder": false,
+       "colorChange": false,
+       "coats": 2
+      },
+      {
+       "id": "r2",
+       "name": "Master bedroom",
+       "type": "master_bedroom",
+       "lengthFt": 15,
+       "widthFt": 14,
+       "heightFt": 8,
+       "walls": true,
+       "ceiling": false,
+       "trim": false,
+       "doors": 2,
+       "windows": 2,
+       "prep": "none",
+       "wallpaper": false,
+       "wallpaperBorder": false,
+       "colorChange": true,
+       "coats": 2
+      },
+      {
+       "id": "r3",
+       "name": "Hallway",
+       "type": "hallway",
+       "lengthFt": 16,
+       "widthFt": 4,
+       "heightFt": 8,
+       "walls": true,
+       "ceiling": false,
+       "trim": true,
+       "doors": 0,
+       "windows": 0,
+       "prep": "none",
+       "wallpaper": false,
+       "wallpaperBorder": false,
+       "colorChange": false,
+       "coats": 2
+      }
+     ],
+     "paintIncluded": true,
+     "notes": [],
+     "assumptions": [
+      "Hallway: size not mentioned, assumed a typical 16 × 4 ft.",
+      "Ceiling height not mentioned, assumed 8 ft.",
+      "Number of coats not mentioned, assumed 2."
+     ]
+    },
+    "aiLineItems": [
+     {
+      "key": "r1:prep",
+      "description": "Living room: patch holes & surface prep",
+      "qty": 1,
+      "unit": "room",
+      "rate": 60,
+      "amount": 60
+     },
+     {
+      "key": "r1:walls",
+      "description": "Living room: paint walls, 2 coats",
+      "qty": 648,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 745.2
+     },
+     {
+      "key": "r1:ceiling",
+      "description": "Living room: paint ceiling, 2 coats",
+      "qty": 320,
+      "unit": "sq ft",
+      "rate": 1,
+      "amount": 320
+     },
+     {
+      "key": "r1:trim",
+      "description": "Living room: baseboards & trim",
+      "qty": 72,
+      "unit": "lin ft",
+      "rate": 1.5,
+      "amount": 108
+     },
+     {
+      "key": "r2:walls",
+      "description": "Master bedroom: paint walls, 3 coats (covering a darker color)",
+      "qty": 392,
+      "unit": "sq ft",
+      "rate": 1.5,
+      "amount": 588
+     },
+     {
+      "key": "r2:doors",
+      "description": "Master bedroom: doors & frames",
+      "qty": 2,
+      "unit": "door",
+      "rate": 65,
+      "amount": 130
+     },
+     {
+      "key": "r2:windows",
+      "description": "Master bedroom: window casings",
+      "qty": 2,
+      "unit": "window",
+      "rate": 45,
+      "amount": 90
+     },
+     {
+      "key": "r3:walls",
+      "description": "Hallway: paint walls, 2 coats",
+      "qty": 320,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 368
+     },
+     {
+      "key": "r3:trim",
+      "description": "Hallway: baseboards & trim",
+      "qty": 40,
+      "unit": "lin ft",
+      "rate": 1.5,
+      "amount": 60
+     },
+     {
+      "key": "job:paint",
+      "description": "Paint & materials (premium interior paint, sundries)",
+      "qty": 12,
+      "unit": "gal",
+      "rate": 48,
+      "amount": 576
+     }
+    ],
+    "lineItems": [
+     {
+      "key": "r1:prep",
+      "description": "Living room: patch holes & surface prep",
+      "qty": 1,
+      "unit": "room",
+      "rate": 60,
+      "amount": 60
+     },
+     {
+      "key": "r1:walls",
+      "description": "Living room: paint walls, 2 coats",
+      "qty": 648,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 745.2
+     },
+     {
+      "key": "r1:ceiling",
+      "description": "Living room: paint ceiling, 2 coats",
+      "qty": 320,
+      "unit": "sq ft",
+      "rate": 1,
+      "amount": 320
+     },
+     {
+      "key": "r1:trim",
+      "description": "Living room: baseboards & trim",
+      "qty": 72,
+      "unit": "lin ft",
+      "rate": 1.5,
+      "amount": 108
+     },
+     {
+      "key": "r2:walls",
+      "description": "Master bedroom: paint walls, 3 coats (covering a darker color)",
+      "qty": 392,
+      "unit": "sq ft",
+      "rate": 1.5,
+      "amount": 588
+     },
+     {
+      "key": "r2:doors",
+      "description": "Master bedroom: doors & frames",
+      "qty": 2,
+      "unit": "door",
+      "rate": 65,
+      "amount": 130
+     },
+     {
+      "key": "r2:windows",
+      "description": "Master bedroom: window casings",
+      "qty": 2,
+      "unit": "window",
+      "rate": 45,
+      "amount": 90
+     },
+     {
+      "key": "r3:walls",
+      "description": "Hallway: paint walls, 2 coats",
+      "qty": 320,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 368
+     },
+     {
+      "key": "r3:trim",
+      "description": "Hallway: baseboards & trim",
+      "qty": 40,
+      "unit": "lin ft",
+      "rate": 1.5,
+      "amount": 60
+     },
+     {
+      "key": "job:paint",
+      "description": "Paint & materials (premium interior paint, sundries)",
+      "qty": 12,
+      "unit": "gal",
+      "rate": 48,
+      "amount": 576
+     }
+    ],
+    "captureStartedAt": "2026-09-22T09:57:36.000Z",
+    "finalizedAt": "2026-09-22T10:00:00.000Z",
+    "decidedAt": "2026-09-25T10:00:00.000Z"
+   },
+   "shared": {
+    "v": 1,
+    "number": "Q-1001",
+    "date": "2026-09-22T10:00:00.000Z",
+    "business": {
+     "name": "Brightline Painting (Demo)",
+     "phone": "(555) 010-0142",
+     "email": "demo@example.com",
+     "license": "DEMO-0001",
+     "validDays": 30
+    },
+    "customerName": "Sarah Johnson",
+    "address": "42 Maple Street",
+    "lineItems": [
+     {
+      "description": "Living room: patch holes & surface prep",
+      "qty": 1,
+      "unit": "room",
+      "rate": 60,
+      "amount": 60
+     },
+     {
+      "description": "Living room: paint walls, 2 coats",
+      "qty": 648,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 745.2
+     },
+     {
+      "description": "Living room: paint ceiling, 2 coats",
+      "qty": 320,
+      "unit": "sq ft",
+      "rate": 1,
+      "amount": 320
+     },
+     {
+      "description": "Living room: baseboards & trim",
+      "qty": 72,
+      "unit": "lin ft",
+      "rate": 1.5,
+      "amount": 108
+     },
+     {
+      "description": "Master bedroom: paint walls, 3 coats (covering a darker color)",
+      "qty": 392,
+      "unit": "sq ft",
+      "rate": 1.5,
+      "amount": 588
+     },
+     {
+      "description": "Master bedroom: doors & frames",
+      "qty": 2,
+      "unit": "door",
+      "rate": 65,
+      "amount": 130
+     },
+     {
+      "description": "Master bedroom: window casings",
+      "qty": 2,
+      "unit": "window",
+      "rate": 45,
+      "amount": 90
+     },
+     {
+      "description": "Hallway: paint walls, 2 coats",
+      "qty": 320,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 368
+     },
+     {
+      "description": "Hallway: baseboards & trim",
+      "qty": 40,
+      "unit": "lin ft",
+      "rate": 1.5,
+      "amount": 60
+     },
+     {
+      "description": "Paint & materials (premium interior paint, sundries)",
+      "qty": 12,
+      "unit": "gal",
+      "rate": 48,
+      "amount": 576
+     }
+    ],
+    "taxPct": 0,
+    "notes": [],
+    "paintByCustomer": false
+   },
+   "share_token": null,
+   "accepted_name": null,
+   "accepted_at": null,
+   "first_viewed_at": null,
+   "last_viewed_at": null,
+   "view_count": 0
+  },
+  {
+   "id": "demo-02",
+   "number": "Q-1002",
+   "status": "lost",
+   "data": {
+    "id": "demo-02",
+    "number": "Q-1002",
+    "createdAt": "2026-09-26T09:56:54.000Z",
+    "status": "lost",
+    "transcript": "ok so this is for tom baker living room twelve by eighteen walls and ceiling eight foot ceilings kitchen walls only ten by twelve two coats everywhere customer has their own paint",
+    "extractor": "parser",
+    "job": {
+     "customerName": "Tom Baker",
+     "address": "",
+     "customerPhone": "",
+     "customerEmail": "",
+     "rooms": [
+      {
+       "id": "r1",
+       "name": "Living room",
+       "type": "living_room",
+       "lengthFt": 18,
+       "widthFt": 12,
+       "heightFt": 8,
+       "walls": true,
+       "ceiling": true,
+       "trim": false,
+       "doors": 0,
+       "windows": 0,
+       "prep": "none",
+       "wallpaper": false,
+       "wallpaperBorder": false,
+       "colorChange": false,
+       "coats": 2
+      },
+      {
+       "id": "r2",
+       "name": "Kitchen",
+       "type": "kitchen",
+       "lengthFt": 12,
+       "widthFt": 10,
+       "heightFt": 8,
+       "walls": true,
+       "ceiling": false,
+       "trim": false,
+       "doors": 0,
+       "windows": 0,
+       "prep": "none",
+       "wallpaper": false,
+       "wallpaperBorder": false,
+       "colorChange": false,
+       "coats": 2
+      }
+     ],
+     "paintIncluded": false,
+     "notes": [],
+     "assumptions": [
+      "Kitchen: only 60% of wall area counted (cabinets, tile, fixtures).",
+      "Ceiling height not mentioned, assumed 8 ft.",
+      "Number of coats not mentioned, assumed 2."
+     ]
+    },
+    "aiLineItems": [
+     {
+      "key": "r1:walls",
+      "description": "Living room: paint walls, 2 coats",
+      "qty": 480,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 552
+     },
+     {
+      "key": "r1:ceiling",
+      "description": "Living room: paint ceiling, 2 coats",
+      "qty": 216,
+      "unit": "sq ft",
+      "rate": 1,
+      "amount": 216
+     },
+     {
+      "key": "r2:walls",
+      "description": "Kitchen: paint walls, 2 coats",
+      "qty": 211,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 242.65
+     }
+    ],
+    "lineItems": [
+     {
+      "key": "r1:walls",
+      "description": "Living room: paint walls, 2 coats",
+      "qty": 480,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 552
+     },
+     {
+      "key": "r1:ceiling",
+      "description": "Living room: paint ceiling, 2 coats",
+      "qty": 216,
+      "unit": "sq ft",
+      "rate": 1,
+      "amount": 216
+     },
+     {
+      "key": "r2:walls",
+      "description": "Kitchen: paint walls, 2 coats",
+      "qty": 211,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 242.65
+     }
+    ],
+    "captureStartedAt": "2026-09-26T09:56:54.000Z",
+    "finalizedAt": "2026-09-26T10:00:00.000Z",
+    "decidedAt": "2026-10-02T10:00:00.000Z"
+   },
+   "shared": {
+    "v": 1,
+    "number": "Q-1002",
+    "date": "2026-09-26T10:00:00.000Z",
+    "business": {
+     "name": "Brightline Painting (Demo)",
+     "phone": "(555) 010-0142",
+     "email": "demo@example.com",
+     "license": "DEMO-0001",
+     "validDays": 30
+    },
+    "customerName": "Tom Baker",
+    "address": "",
+    "lineItems": [
+     {
+      "description": "Living room: paint walls, 2 coats",
+      "qty": 480,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 552
+     },
+     {
+      "description": "Living room: paint ceiling, 2 coats",
+      "qty": 216,
+      "unit": "sq ft",
+      "rate": 1,
+      "amount": 216
+     },
+     {
+      "description": "Kitchen: paint walls, 2 coats",
+      "qty": 211,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 242.65
+     }
+    ],
+    "taxPct": 0,
+    "notes": [],
+    "paintByCustomer": true
+   },
+   "share_token": null,
+   "accepted_name": null,
+   "accepted_at": null,
+   "first_viewed_at": null,
+   "last_viewed_at": null,
+   "view_count": 0
+  },
+  {
+   "id": "demo-03",
+   "number": "Q-1003",
+   "status": "won",
+   "data": {
+    "id": "demo-03",
+    "number": "Q-1003",
+    "createdAt": "2026-10-01T09:58:12.000Z",
+    "status": "won",
+    "transcript": "Estimate for Linda Park. The office and the guest bedroom both need walls and ceilings, light patching. Office is 10 by 11, guest room is 12 by 12. We supply paint.",
+    "extractor": "parser",
+    "job": {
+     "customerName": "Linda Park",
+     "address": "",
+     "customerPhone": "",
+     "customerEmail": "",
+     "rooms": [
+      {
+       "id": "r1",
+       "name": "Office",
+       "type": "office",
+       "lengthFt": 11,
+       "widthFt": 10,
+       "heightFt": 8,
+       "walls": true,
+       "ceiling": true,
+       "trim": false,
+       "doors": 0,
+       "windows": 0,
+       "prep": "light",
+       "wallpaper": false,
+       "wallpaperBorder": false,
+       "colorChange": false,
+       "coats": 2
+      },
+      {
+       "id": "r2",
+       "name": "Guest bedroom",
+       "type": "bedroom",
+       "lengthFt": 12,
+       "widthFt": 12,
+       "heightFt": 8,
+       "walls": true,
+       "ceiling": true,
+       "trim": false,
+       "doors": 0,
+       "windows": 0,
+       "prep": "light",
+       "wallpaper": false,
+       "wallpaperBorder": false,
+       "colorChange": false,
+       "coats": 2
+      }
+     ],
+     "paintIncluded": true,
+     "notes": [],
+     "assumptions": [
+      "Ceiling height not mentioned, assumed 8 ft.",
+      "Number of coats not mentioned, assumed 2."
+     ]
+    },
+    "aiLineItems": [
+     {
+      "key": "r1:prep",
+      "description": "Office: patch holes & surface prep",
+      "qty": 1,
+      "unit": "room",
+      "rate": 60,
+      "amount": 60
+     },
+     {
+      "key": "r1:walls",
+      "description": "Office: paint walls, 2 coats",
+      "qty": 336,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 386.4
+     },
+     {
+      "key": "r1:ceiling",
+      "description": "Office: paint ceiling, 2 coats",
+      "qty": 110,
+      "unit": "sq ft",
+      "rate": 1,
+      "amount": 110
+     },
+     {
+      "key": "r2:prep",
+      "description": "Guest bedroom: patch holes & surface prep",
+      "qty": 1,
+      "unit": "room",
+      "rate": 60,
+      "amount": 60
+     },
+     {
+      "key": "r2:walls",
+      "description": "Guest bedroom: paint walls, 2 coats",
+      "qty": 384,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 441.6
+     },
+     {
+      "key": "r2:ceiling",
+      "description": "Guest bedroom: paint ceiling, 2 coats",
+      "qty": 144,
+      "unit": "sq ft",
+      "rate": 1,
+      "amount": 144
+     },
+     {
+      "key": "job:paint",
+      "description": "Paint & materials (premium interior paint, sundries)",
+      "qty": 6,
+      "unit": "gal",
+      "rate": 48,
+      "amount": 288
+     }
+    ],
+    "lineItems": [
+     {
+      "key": "r1:prep",
+      "description": "Office: patch holes & surface prep",
+      "qty": 1,
+      "unit": "room",
+      "rate": 69,
+      "amount": 69
+     },
+     {
+      "key": "r1:walls",
+      "description": "Office: paint walls, 2 coats",
+      "qty": 336,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 386.4
+     },
+     {
+      "key": "r1:ceiling",
+      "description": "Office: paint ceiling, 2 coats",
+      "qty": 110,
+      "unit": "sq ft",
+      "rate": 1,
+      "amount": 110
+     },
+     {
+      "key": "r2:prep",
+      "description": "Guest bedroom: patch holes & surface prep",
+      "qty": 1,
+      "unit": "room",
+      "rate": 60,
+      "amount": 60
+     },
+     {
+      "key": "r2:walls",
+      "description": "Guest bedroom: paint walls, 2 coats",
+      "qty": 384,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 441.6
+     },
+     {
+      "key": "r2:ceiling",
+      "description": "Guest bedroom: paint ceiling, 2 coats",
+      "qty": 144,
+      "unit": "sq ft",
+      "rate": 1,
+      "amount": 144
+     },
+     {
+      "key": "job:paint",
+      "description": "Paint & materials (premium interior paint, sundries)",
+      "qty": 6,
+      "unit": "gal",
+      "rate": 48,
+      "amount": 288
+     }
+    ],
+    "captureStartedAt": "2026-10-01T09:58:12.000Z",
+    "finalizedAt": "2026-10-01T10:00:00.000Z",
+    "decidedAt": "2026-10-03T10:00:00.000Z"
+   },
+   "shared": {
+    "v": 1,
+    "number": "Q-1003",
+    "date": "2026-10-01T10:00:00.000Z",
+    "business": {
+     "name": "Brightline Painting (Demo)",
+     "phone": "(555) 010-0142",
+     "email": "demo@example.com",
+     "license": "DEMO-0001",
+     "validDays": 30
+    },
+    "customerName": "Linda Park",
+    "address": "",
+    "lineItems": [
+     {
+      "description": "Office: patch holes & surface prep",
+      "qty": 1,
+      "unit": "room",
+      "rate": 69,
+      "amount": 69
+     },
+     {
+      "description": "Office: paint walls, 2 coats",
+      "qty": 336,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 386.4
+     },
+     {
+      "description": "Office: paint ceiling, 2 coats",
+      "qty": 110,
+      "unit": "sq ft",
+      "rate": 1,
+      "amount": 110
+     },
+     {
+      "description": "Guest bedroom: patch holes & surface prep",
+      "qty": 1,
+      "unit": "room",
+      "rate": 60,
+      "amount": 60
+     },
+     {
+      "description": "Guest bedroom: paint walls, 2 coats",
+      "qty": 384,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 441.6
+     },
+     {
+      "description": "Guest bedroom: paint ceiling, 2 coats",
+      "qty": 144,
+      "unit": "sq ft",
+      "rate": 1,
+      "amount": 144
+     },
+     {
+      "description": "Paint & materials (premium interior paint, sundries)",
+      "qty": 6,
+      "unit": "gal",
+      "rate": 48,
+      "amount": 288
+     }
+    ],
+    "taxPct": 0,
+    "notes": [],
+    "paintByCustomer": false
+   },
+   "share_token": null,
+   "accepted_name": null,
+   "accepted_at": null,
+   "first_viewed_at": null,
+   "last_viewed_at": null,
+   "view_count": 0
+  },
+  {
+   "id": "demo-04",
+   "number": "Q-1004",
+   "status": "won",
+   "data": {
+    "id": "demo-04",
+    "number": "Q-1004",
+    "createdAt": "2026-10-05T09:57:48.000Z",
+    "status": "won",
+    "transcript": "Quote for Dave Ross. Master bedroom 13 by 16, walls and trim, ceiling is fine, no patching needed, three doors. Vaulted ceilings in there.",
+    "extractor": "parser",
+    "job": {
+     "customerName": "Dave Ross",
+     "address": "",
+     "customerPhone": "",
+     "customerEmail": "",
+     "rooms": [
+      {
+       "id": "r1",
+       "name": "Master bedroom",
+       "type": "master_bedroom",
+       "lengthFt": 16,
+       "widthFt": 13,
+       "heightFt": 12,
+       "walls": true,
+       "ceiling": false,
+       "trim": true,
+       "doors": 3,
+       "windows": 0,
+       "prep": "none",
+       "wallpaper": false,
+       "wallpaperBorder": false,
+       "colorChange": false,
+       "coats": 2
+      }
+     ],
+     "paintIncluded": true,
+     "notes": [],
+     "assumptions": [
+      "Number of coats not mentioned, assumed 2.",
+      "Paint supply not mentioned, assumed you supply the paint."
+     ]
+    },
+    "aiLineItems": [
+     {
+      "key": "r1:walls",
+      "description": "Master bedroom: paint walls, 2 coats",
+      "qty": 633,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 727.95
+     },
+     {
+      "key": "r1:trim",
+      "description": "Master bedroom: baseboards & trim",
+      "qty": 58,
+      "unit": "lin ft",
+      "rate": 1.5,
+      "amount": 87
+     },
+     {
+      "key": "r1:doors",
+      "description": "Master bedroom: doors & frames",
+      "qty": 3,
+      "unit": "door",
+      "rate": 65,
+      "amount": 195
+     },
+     {
+      "key": "job:paint",
+      "description": "Paint & materials (premium interior paint, sundries)",
+      "qty": 5,
+      "unit": "gal",
+      "rate": 48,
+      "amount": 240
+     }
+    ],
+    "lineItems": [
+     {
+      "key": "r1:walls",
+      "description": "Master bedroom: paint walls, 2 coats",
+      "qty": 633,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 727.95
+     },
+     {
+      "key": "r1:trim",
+      "description": "Master bedroom: baseboards & trim",
+      "qty": 58,
+      "unit": "lin ft",
+      "rate": 1.5,
+      "amount": 87
+     },
+     {
+      "key": "r1:doors",
+      "description": "Master bedroom: doors & frames",
+      "qty": 3,
+      "unit": "door",
+      "rate": 65,
+      "amount": 195
+     },
+     {
+      "key": "job:paint",
+      "description": "Paint & materials (premium interior paint, sundries)",
+      "qty": 5,
+      "unit": "gal",
+      "rate": 48,
+      "amount": 240
+     }
+    ],
+    "captureStartedAt": "2026-10-05T09:57:48.000Z",
+    "finalizedAt": "2026-10-05T10:00:00.000Z",
+    "decidedAt": "2026-10-07T10:00:00.000Z"
+   },
+   "shared": {
+    "v": 1,
+    "number": "Q-1004",
+    "date": "2026-10-05T10:00:00.000Z",
+    "business": {
+     "name": "Brightline Painting (Demo)",
+     "phone": "(555) 010-0142",
+     "email": "demo@example.com",
+     "license": "DEMO-0001",
+     "validDays": 30
+    },
+    "customerName": "Dave Ross",
+    "address": "",
+    "lineItems": [
+     {
+      "description": "Master bedroom: paint walls, 2 coats",
+      "qty": 633,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 727.95
+     },
+     {
+      "description": "Master bedroom: baseboards & trim",
+      "qty": 58,
+      "unit": "lin ft",
+      "rate": 1.5,
+      "amount": 87
+     },
+     {
+      "description": "Master bedroom: doors & frames",
+      "qty": 3,
+      "unit": "door",
+      "rate": 65,
+      "amount": 195
+     },
+     {
+      "description": "Paint & materials (premium interior paint, sundries)",
+      "qty": 5,
+      "unit": "gal",
+      "rate": 48,
+      "amount": 240
+     }
+    ],
+    "taxPct": 0,
+    "notes": [],
+    "paintByCustomer": false
+   },
+   "share_token": null,
+   "accepted_name": null,
+   "accepted_at": null,
+   "first_viewed_at": null,
+   "last_viewed_at": null,
+   "view_count": 0
+  },
+  {
+   "id": "demo-05",
+   "number": "Q-1005",
+   "status": "lost",
+   "data": {
+    "id": "demo-05",
+    "number": "Q-1005",
+    "createdAt": "2026-10-10T09:57:06.000Z",
+    "status": "lost",
+    "transcript": "Job for the Nguyens. Nursery ten by eleven, everything, walls ceiling trim, going from bright red to white. Powder room walls only. Ceilings are nine feet.",
+    "extractor": "parser",
+    "job": {
+     "customerName": "Nguyens",
+     "address": "",
+     "customerPhone": "",
+     "customerEmail": "",
+     "rooms": [
+      {
+       "id": "r1",
+       "name": "Nursery",
+       "type": "nursery",
+       "lengthFt": 11,
+       "widthFt": 10,
+       "heightFt": 9,
+       "walls": true,
+       "ceiling": true,
+       "trim": true,
+       "doors": 0,
+       "windows": 0,
+       "prep": "none",
+       "wallpaper": false,
+       "wallpaperBorder": false,
+       "colorChange": true,
+       "coats": 2
+      },
+      {
+       "id": "r2",
+       "name": "Powder room",
+       "type": "powder_room",
+       "lengthFt": 6,
+       "widthFt": 5,
+       "heightFt": 9,
+       "walls": true,
+       "ceiling": false,
+       "trim": false,
+       "doors": 0,
+       "windows": 0,
+       "prep": "none",
+       "wallpaper": false,
+       "wallpaperBorder": false,
+       "colorChange": false,
+       "coats": 2
+      }
+     ],
+     "paintIncluded": true,
+     "notes": [],
+     "assumptions": [
+      "Powder room: size not mentioned, assumed a typical 6 × 5 ft.",
+      "Number of coats not mentioned, assumed 2.",
+      "Paint supply not mentioned, assumed you supply the paint."
+     ]
+    },
+    "aiLineItems": [
+     {
+      "key": "r1:walls",
+      "description": "Nursery: paint walls, 3 coats (covering a darker color)",
+      "qty": 378,
+      "unit": "sq ft",
+      "rate": 1.5,
+      "amount": 567
+     },
+     {
+      "key": "r1:ceiling",
+      "description": "Nursery: paint ceiling, 2 coats",
+      "qty": 110,
+      "unit": "sq ft",
+      "rate": 1,
+      "amount": 110
+     },
+     {
+      "key": "r1:trim",
+      "description": "Nursery: baseboards & trim",
+      "qty": 42,
+      "unit": "lin ft",
+      "rate": 1.5,
+      "amount": 63
+     },
+     {
+      "key": "r2:walls",
+      "description": "Powder room: paint walls, 2 coats",
+      "qty": 198,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 227.7
+     },
+     {
+      "key": "job:paint",
+      "description": "Paint & materials (premium interior paint, sundries)",
+      "qty": 6,
+      "unit": "gal",
+      "rate": 48,
+      "amount": 288
+     }
+    ],
+    "lineItems": [
+     {
+      "key": "r1:walls",
+      "description": "Nursery: paint walls, 3 coats (covering a darker color)",
+      "qty": 378,
+      "unit": "sq ft",
+      "rate": 1.5,
+      "amount": 567
+     },
+     {
+      "key": "r1:ceiling",
+      "description": "Nursery: paint ceiling, 2 coats",
+      "qty": 110,
+      "unit": "sq ft",
+      "rate": 1,
+      "amount": 110
+     },
+     {
+      "key": "r1:trim",
+      "description": "Nursery: baseboards & trim",
+      "qty": 42,
+      "unit": "lin ft",
+      "rate": 1.5,
+      "amount": 63
+     },
+     {
+      "key": "r2:walls",
+      "description": "Powder room: paint walls, 2 coats",
+      "qty": 198,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 227.7
+     },
+     {
+      "key": "job:paint",
+      "description": "Paint & materials (premium interior paint, sundries)",
+      "qty": 6,
+      "unit": "gal",
+      "rate": 48,
+      "amount": 288
+     }
+    ],
+    "captureStartedAt": "2026-10-10T09:57:06.000Z",
+    "finalizedAt": "2026-10-10T10:00:00.000Z",
+    "decidedAt": "2026-10-14T10:00:00.000Z"
+   },
+   "shared": {
+    "v": 1,
+    "number": "Q-1005",
+    "date": "2026-10-10T10:00:00.000Z",
+    "business": {
+     "name": "Brightline Painting (Demo)",
+     "phone": "(555) 010-0142",
+     "email": "demo@example.com",
+     "license": "DEMO-0001",
+     "validDays": 30
+    },
+    "customerName": "Nguyens",
+    "address": "",
+    "lineItems": [
+     {
+      "description": "Nursery: paint walls, 3 coats (covering a darker color)",
+      "qty": 378,
+      "unit": "sq ft",
+      "rate": 1.5,
+      "amount": 567
+     },
+     {
+      "description": "Nursery: paint ceiling, 2 coats",
+      "qty": 110,
+      "unit": "sq ft",
+      "rate": 1,
+      "amount": 110
+     },
+     {
+      "description": "Nursery: baseboards & trim",
+      "qty": 42,
+      "unit": "lin ft",
+      "rate": 1.5,
+      "amount": 63
+     },
+     {
+      "description": "Powder room: paint walls, 2 coats",
+      "qty": 198,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 227.7
+     },
+     {
+      "description": "Paint & materials (premium interior paint, sundries)",
+      "qty": 6,
+      "unit": "gal",
+      "rate": 48,
+      "amount": 288
+     }
+    ],
+    "taxPct": 0,
+    "notes": [],
+    "paintByCustomer": false
+   },
+   "share_token": null,
+   "accepted_name": null,
+   "accepted_at": null,
+   "first_viewed_at": null,
+   "last_viewed_at": null,
+   "view_count": 0
+  },
+  {
+   "id": "demo-06",
+   "number": "Q-1006",
+   "status": "won",
+   "data": {
+    "id": "demo-06",
+    "number": "Q-1006",
+    "createdAt": "2026-10-14T09:56:36.000Z",
+    "status": "won",
+    "transcript": "Customer is Robert King. Basement about 500 square feet, walls and ceiling, lots of patching and some drywall repair, one coat of primer counts as a coat so two coats total. Stairwell walls too.",
+    "extractor": "parser",
+    "job": {
+     "customerName": "Robert King",
+     "address": "",
+     "customerPhone": "",
+     "customerEmail": "",
+     "rooms": [
+      {
+       "id": "r1",
+       "name": "Basement",
+       "type": "basement",
+       "lengthFt": 22.4,
+       "widthFt": 22.4,
+       "heightFt": 8,
+       "walls": true,
+       "ceiling": true,
+       "trim": false,
+       "doors": 0,
+       "windows": 0,
+       "prep": "heavy",
+       "wallpaper": false,
+       "wallpaperBorder": false,
+       "colorChange": false,
+       "coats": 2
+      },
+      {
+       "id": "r2",
+       "name": "Stairwell",
+       "type": "stairwell",
+       "lengthFt": 14,
+       "widthFt": 4,
+       "heightFt": 8,
+       "walls": true,
+       "ceiling": false,
+       "trim": false,
+       "doors": 0,
+       "windows": 0,
+       "prep": "none",
+       "wallpaper": false,
+       "wallpaperBorder": false,
+       "colorChange": false,
+       "coats": 2
+      }
+     ],
+     "paintIncluded": true,
+     "notes": [],
+     "assumptions": [
+      "Stairwell: size not mentioned, assumed a typical 14 × 4 ft.",
+      "Ceiling height not mentioned, assumed 8 ft.",
+      "Number of coats not mentioned, assumed 2.",
+      "Paint supply not mentioned, assumed you supply the paint."
+     ]
+    },
+    "aiLineItems": [
+     {
+      "key": "r1:prep",
+      "description": "Basement: drywall repair & surface prep",
+      "qty": 1,
+      "unit": "room",
+      "rate": 180,
+      "amount": 180
+     },
+     {
+      "key": "r1:walls",
+      "description": "Basement: paint walls, 2 coats",
+      "qty": 717,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 824.55
+     },
+     {
+      "key": "r1:ceiling",
+      "description": "Basement: paint ceiling, 2 coats",
+      "qty": 502,
+      "unit": "sq ft",
+      "rate": 1,
+      "amount": 502
+     },
+     {
+      "key": "r2:walls",
+      "description": "Stairwell: paint walls, 2 coats",
+      "qty": 288,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 331.2
+     },
+     {
+      "key": "job:paint",
+      "description": "Paint & materials (premium interior paint, sundries)",
+      "qty": 9,
+      "unit": "gal",
+      "rate": 48,
+      "amount": 432
+     }
+    ],
+    "lineItems": [
+     {
+      "key": "r1:prep",
+      "description": "Basement: drywall repair & surface prep",
+      "qty": 1,
+      "unit": "room",
+      "rate": 180,
+      "amount": 180
+     },
+     {
+      "key": "r1:walls",
+      "description": "Basement: paint walls, 2 coats",
+      "qty": 717,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 824.55
+     },
+     {
+      "key": "r1:ceiling",
+      "description": "Basement: paint ceiling, 2 coats",
+      "qty": 502,
+      "unit": "sq ft",
+      "rate": 1,
+      "amount": 502
+     },
+     {
+      "key": "r2:walls",
+      "description": "Stairwell: paint walls, 2 coats",
+      "qty": 288,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 331.2
+     },
+     {
+      "key": "job:paint",
+      "description": "Paint & materials (premium interior paint, sundries)",
+      "qty": 9,
+      "unit": "gal",
+      "rate": 48,
+      "amount": 432
+     }
+    ],
+    "captureStartedAt": "2026-10-14T09:56:36.000Z",
+    "finalizedAt": "2026-10-14T10:00:00.000Z",
+    "decidedAt": "2026-10-16T10:00:00.000Z",
+    "discount": {
+     "type": "percent",
+     "value": 5,
+     "reason": "Returning customer"
+    }
+   },
+   "shared": {
+    "v": 1,
+    "number": "Q-1006",
+    "date": "2026-10-14T10:00:00.000Z",
+    "business": {
+     "name": "Brightline Painting (Demo)",
+     "phone": "(555) 010-0142",
+     "email": "demo@example.com",
+     "license": "DEMO-0001",
+     "validDays": 30
+    },
+    "customerName": "Robert King",
+    "address": "",
+    "lineItems": [
+     {
+      "description": "Basement: drywall repair & surface prep",
+      "qty": 1,
+      "unit": "room",
+      "rate": 180,
+      "amount": 180
+     },
+     {
+      "description": "Basement: paint walls, 2 coats",
+      "qty": 717,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 824.55
+     },
+     {
+      "description": "Basement: paint ceiling, 2 coats",
+      "qty": 502,
+      "unit": "sq ft",
+      "rate": 1,
+      "amount": 502
+     },
+     {
+      "description": "Stairwell: paint walls, 2 coats",
+      "qty": 288,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 331.2
+     },
+     {
+      "description": "Paint & materials (premium interior paint, sundries)",
+      "qty": 9,
+      "unit": "gal",
+      "rate": 48,
+      "amount": 432
+     }
+    ],
+    "taxPct": 0,
+    "notes": [],
+    "discount": {
+     "type": "percent",
+     "value": 5,
+     "reason": "Returning customer"
+    },
+    "paintByCustomer": false
+   },
+   "share_token": null,
+   "accepted_name": null,
+   "accepted_at": null,
+   "first_viewed_at": null,
+   "last_viewed_at": null,
+   "view_count": 0
+  },
+  {
+   "id": "demo-07",
+   "number": "Q-1007",
+   "status": "won",
+   "data": {
+    "id": "demo-07",
+    "number": "Q-1007",
+    "createdAt": "2026-10-19T09:58:00.000Z",
+    "status": "won",
+    "transcript": "Quote for Emily Stone. Three bedrooms upstairs all about 11 by 12, walls and ceiling, 2 coats. Upstairs hallway walls only. Labor only, she bought paint already.",
+    "extractor": "parser",
+    "job": {
+     "customerName": "Emily Stone",
+     "address": "",
+     "customerPhone": "",
+     "customerEmail": "",
+     "rooms": [
+      {
+       "id": "r1",
+       "name": "Bedroom 1",
+       "type": "bedroom",
+       "lengthFt": 12,
+       "widthFt": 11,
+       "heightFt": 8,
+       "walls": true,
+       "ceiling": true,
+       "trim": false,
+       "doors": 0,
+       "windows": 0,
+       "prep": "none",
+       "wallpaper": false,
+       "wallpaperBorder": false,
+       "colorChange": false,
+       "coats": 2
+      },
+      {
+       "id": "r2",
+       "name": "Bedroom 2",
+       "type": "bedroom",
+       "lengthFt": 12,
+       "widthFt": 11,
+       "heightFt": 8,
+       "walls": true,
+       "ceiling": true,
+       "trim": false,
+       "doors": 0,
+       "windows": 0,
+       "prep": "none",
+       "wallpaper": false,
+       "wallpaperBorder": false,
+       "colorChange": false,
+       "coats": 2
+      },
+      {
+       "id": "r3",
+       "name": "Bedroom 3",
+       "type": "bedroom",
+       "lengthFt": 12,
+       "widthFt": 11,
+       "heightFt": 8,
+       "walls": true,
+       "ceiling": true,
+       "trim": false,
+       "doors": 0,
+       "windows": 0,
+       "prep": "none",
+       "wallpaper": false,
+       "wallpaperBorder": false,
+       "colorChange": false,
+       "coats": 2
+      },
+      {
+       "id": "r4",
+       "name": "Upstairs hallway",
+       "type": "hallway",
+       "lengthFt": 16,
+       "widthFt": 4,
+       "heightFt": 8,
+       "walls": true,
+       "ceiling": false,
+       "trim": false,
+       "doors": 0,
+       "windows": 0,
+       "prep": "none",
+       "wallpaper": false,
+       "wallpaperBorder": false,
+       "colorChange": false,
+       "coats": 2
+      }
+     ],
+     "paintIncluded": false,
+     "notes": [],
+     "assumptions": [
+      "Upstairs hallway: size not mentioned, assumed a typical 16 × 4 ft.",
+      "Ceiling height not mentioned, assumed 8 ft.",
+      "Number of coats not mentioned, assumed 2."
+     ]
+    },
+    "aiLineItems": [
+     {
+      "key": "r1:walls",
+      "description": "Bedroom 1: paint walls, 2 coats",
+      "qty": 368,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 423.2
+     },
+     {
+      "key": "r1:ceiling",
+      "description": "Bedroom 1: paint ceiling, 2 coats",
+      "qty": 132,
+      "unit": "sq ft",
+      "rate": 1,
+      "amount": 132
+     },
+     {
+      "key": "r2:walls",
+      "description": "Bedroom 2: paint walls, 2 coats",
+      "qty": 368,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 423.2
+     },
+     {
+      "key": "r2:ceiling",
+      "description": "Bedroom 2: paint ceiling, 2 coats",
+      "qty": 132,
+      "unit": "sq ft",
+      "rate": 1,
+      "amount": 132
+     },
+     {
+      "key": "r3:walls",
+      "description": "Bedroom 3: paint walls, 2 coats",
+      "qty": 368,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 423.2
+     },
+     {
+      "key": "r3:ceiling",
+      "description": "Bedroom 3: paint ceiling, 2 coats",
+      "qty": 132,
+      "unit": "sq ft",
+      "rate": 1,
+      "amount": 132
+     },
+     {
+      "key": "r4:walls",
+      "description": "Upstairs hallway: paint walls, 2 coats",
+      "qty": 320,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 368
+     }
+    ],
+    "lineItems": [
+     {
+      "key": "r1:walls",
+      "description": "Bedroom 1: paint walls, 2 coats",
+      "qty": 368,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 423.2
+     },
+     {
+      "key": "r1:ceiling",
+      "description": "Bedroom 1: paint ceiling, 2 coats",
+      "qty": 132,
+      "unit": "sq ft",
+      "rate": 1,
+      "amount": 132
+     },
+     {
+      "key": "r2:walls",
+      "description": "Bedroom 2: paint walls, 2 coats",
+      "qty": 368,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 423.2
+     },
+     {
+      "key": "r2:ceiling",
+      "description": "Bedroom 2: paint ceiling, 2 coats",
+      "qty": 132,
+      "unit": "sq ft",
+      "rate": 1,
+      "amount": 132
+     },
+     {
+      "key": "r3:walls",
+      "description": "Bedroom 3: paint walls, 2 coats",
+      "qty": 368,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 423.2
+     },
+     {
+      "key": "r3:ceiling",
+      "description": "Bedroom 3: paint ceiling, 2 coats",
+      "qty": 132,
+      "unit": "sq ft",
+      "rate": 1,
+      "amount": 132
+     },
+     {
+      "key": "r4:walls",
+      "description": "Upstairs hallway: paint walls, 2 coats",
+      "qty": 320,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 368
+     }
+    ],
+    "captureStartedAt": "2026-10-19T09:58:00.000Z",
+    "finalizedAt": "2026-10-19T10:00:00.000Z",
+    "decidedAt": "2026-10-20T10:00:00.000Z"
+   },
+   "shared": {
+    "v": 1,
+    "number": "Q-1007",
+    "date": "2026-10-19T10:00:00.000Z",
+    "business": {
+     "name": "Brightline Painting (Demo)",
+     "phone": "(555) 010-0142",
+     "email": "demo@example.com",
+     "license": "DEMO-0001",
+     "validDays": 30
+    },
+    "customerName": "Emily Stone",
+    "address": "",
+    "lineItems": [
+     {
+      "description": "Bedroom 1: paint walls, 2 coats",
+      "qty": 368,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 423.2
+     },
+     {
+      "description": "Bedroom 1: paint ceiling, 2 coats",
+      "qty": 132,
+      "unit": "sq ft",
+      "rate": 1,
+      "amount": 132
+     },
+     {
+      "description": "Bedroom 2: paint walls, 2 coats",
+      "qty": 368,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 423.2
+     },
+     {
+      "description": "Bedroom 2: paint ceiling, 2 coats",
+      "qty": 132,
+      "unit": "sq ft",
+      "rate": 1,
+      "amount": 132
+     },
+     {
+      "description": "Bedroom 3: paint walls, 2 coats",
+      "qty": 368,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 423.2
+     },
+     {
+      "description": "Bedroom 3: paint ceiling, 2 coats",
+      "qty": 132,
+      "unit": "sq ft",
+      "rate": 1,
+      "amount": 132
+     },
+     {
+      "description": "Upstairs hallway: paint walls, 2 coats",
+      "qty": 320,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 368
+     }
+    ],
+    "taxPct": 0,
+    "notes": [],
+    "paintByCustomer": true
+   },
+   "share_token": null,
+   "accepted_name": null,
+   "accepted_at": null,
+   "first_viewed_at": null,
+   "last_viewed_at": null,
+   "view_count": 0
+  },
+  {
+   "id": "demo-08",
+   "number": "Q-1008",
+   "status": "sent",
+   "data": {
+    "id": "demo-08",
+    "number": "Q-1008",
+    "createdAt": "2026-10-27T09:57:24.000Z",
+    "status": "sent",
+    "transcript": "ok this is the Henderson job, we did their kitchen last year so just the living room hallway and master. Living room is sixteen by twenty two, walls and ceiling, they're going from dark navy to a light cream on the walls. Some patching, there's a hole where the doorknob went through the wall. Hallway's about four by eighteen walls only leave the ceiling. Master bedroom walls ceiling and trim, two doors and three windows, I didn't measure it. She asked about the garage door but I told her interior only. They're buying their own paint.",
+    "extractor": "parser",
+    "job": {
+     "customerName": "Henderson",
+     "address": "72 Oak Ridge Dr",
+     "customerPhone": "",
+     "customerEmail": "",
+     "rooms": [
+      {
+       "id": "r1",
+       "name": "Living room",
+       "type": "living_room",
+       "lengthFt": 22,
+       "widthFt": 16,
+       "heightFt": 8,
+       "walls": true,
+       "ceiling": true,
+       "trim": false,
+       "doors": 0,
+       "windows": 0,
+       "prep": "light",
+       "wallpaper": false,
+       "wallpaperBorder": false,
+       "colorChange": true,
+       "coats": 2
+      },
+      {
+       "id": "r2",
+       "name": "Hallway",
+       "type": "hallway",
+       "lengthFt": 18,
+       "widthFt": 4,
+       "heightFt": 8,
+       "walls": true,
+       "ceiling": false,
+       "trim": false,
+       "doors": 0,
+       "windows": 0,
+       "prep": "none",
+       "wallpaper": false,
+       "wallpaperBorder": false,
+       "colorChange": false,
+       "coats": 2
+      },
+      {
+       "id": "r3",
+       "name": "Master bedroom",
+       "type": "master_bedroom",
+       "lengthFt": 16,
+       "widthFt": 14,
+       "heightFt": 8,
+       "walls": true,
+       "ceiling": true,
+       "trim": true,
+       "doors": 2,
+       "windows": 3,
+       "prep": "none",
+       "wallpaper": false,
+       "wallpaperBorder": false,
+       "colorChange": false,
+       "coats": 2
+      }
+     ],
+     "paintIncluded": false,
+     "notes": [
+      "Garage door mentioned: not priced (interior only)."
+     ],
+     "assumptions": [
+      "Left out \"kitchen\": it sounds like past work or not part of this job. Add it back if needed.",
+      "Master bedroom: size not mentioned, assumed a typical 16 × 14 ft.",
+      "Ceiling height not mentioned, assumed 8 ft.",
+      "Number of coats not mentioned, assumed 2."
+     ]
+    },
+    "aiLineItems": [
+     {
+      "key": "r1:prep",
+      "description": "Living room: patch holes & surface prep",
+      "qty": 1,
+      "unit": "room",
+      "rate": 60,
+      "amount": 60
+     },
+     {
+      "key": "r1:walls",
+      "description": "Living room: paint walls, 3 coats (covering a darker color)",
+      "qty": 608,
+      "unit": "sq ft",
+      "rate": 1.5,
+      "amount": 912
+     },
+     {
+      "key": "r1:ceiling",
+      "description": "Living room: paint ceiling, 2 coats",
+      "qty": 352,
+      "unit": "sq ft",
+      "rate": 1,
+      "amount": 352
+     },
+     {
+      "key": "r2:walls",
+      "description": "Hallway: paint walls, 2 coats",
+      "qty": 352,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 404.8
+     },
+     {
+      "key": "r3:walls",
+      "description": "Master bedroom: paint walls, 2 coats",
+      "qty": 393,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 451.95
+     },
+     {
+      "key": "r3:ceiling",
+      "description": "Master bedroom: paint ceiling, 2 coats",
+      "qty": 224,
+      "unit": "sq ft",
+      "rate": 1,
+      "amount": 224
+     },
+     {
+      "key": "r3:trim",
+      "description": "Master bedroom: baseboards & trim",
+      "qty": 60,
+      "unit": "lin ft",
+      "rate": 1.5,
+      "amount": 90
+     },
+     {
+      "key": "r3:doors",
+      "description": "Master bedroom: doors & frames",
+      "qty": 2,
+      "unit": "door",
+      "rate": 65,
+      "amount": 130
+     },
+     {
+      "key": "r3:windows",
+      "description": "Master bedroom: window casings",
+      "qty": 3,
+      "unit": "window",
+      "rate": 45,
+      "amount": 135
+     }
+    ],
+    "lineItems": [
+     {
+      "key": "r1:prep",
+      "description": "Living room: patch holes & surface prep",
+      "qty": 1,
+      "unit": "room",
+      "rate": 60,
+      "amount": 60
+     },
+     {
+      "key": "r1:walls",
+      "description": "Living room: paint walls, 3 coats (covering a darker color)",
+      "qty": 608,
+      "unit": "sq ft",
+      "rate": 1.5,
+      "amount": 912
+     },
+     {
+      "key": "r1:ceiling",
+      "description": "Living room: paint ceiling, 2 coats",
+      "qty": 352,
+      "unit": "sq ft",
+      "rate": 1,
+      "amount": 352
+     },
+     {
+      "key": "r2:walls",
+      "description": "Hallway: paint walls, 2 coats",
+      "qty": 352,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 404.8
+     },
+     {
+      "key": "r3:walls",
+      "description": "Master bedroom: paint walls, 2 coats",
+      "qty": 393,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 451.95
+     },
+     {
+      "key": "r3:ceiling",
+      "description": "Master bedroom: paint ceiling, 2 coats",
+      "qty": 224,
+      "unit": "sq ft",
+      "rate": 1,
+      "amount": 224
+     },
+     {
+      "key": "r3:trim",
+      "description": "Master bedroom: baseboards & trim",
+      "qty": 60,
+      "unit": "lin ft",
+      "rate": 1.5,
+      "amount": 90
+     },
+     {
+      "key": "r3:doors",
+      "description": "Master bedroom: doors & frames",
+      "qty": 2,
+      "unit": "door",
+      "rate": 65,
+      "amount": 130
+     },
+     {
+      "key": "r3:windows",
+      "description": "Master bedroom: window casings",
+      "qty": 3,
+      "unit": "window",
+      "rate": 45,
+      "amount": 135
+     }
+    ],
+    "captureStartedAt": "2026-10-27T09:57:24.000Z",
+    "finalizedAt": "2026-10-27T10:00:00.000Z",
+    "shareToken": "DemoHenderson5d8"
+   },
+   "shared": {
+    "v": 1,
+    "number": "Q-1008",
+    "date": "2026-10-27T10:00:00.000Z",
+    "business": {
+     "name": "Brightline Painting (Demo)",
+     "phone": "(555) 010-0142",
+     "email": "demo@example.com",
+     "license": "DEMO-0001",
+     "validDays": 30
+    },
+    "customerName": "Henderson",
+    "address": "72 Oak Ridge Dr",
+    "lineItems": [
+     {
+      "description": "Living room: patch holes & surface prep",
+      "qty": 1,
+      "unit": "room",
+      "rate": 60,
+      "amount": 60
+     },
+     {
+      "description": "Living room: paint walls, 3 coats (covering a darker color)",
+      "qty": 608,
+      "unit": "sq ft",
+      "rate": 1.5,
+      "amount": 912
+     },
+     {
+      "description": "Living room: paint ceiling, 2 coats",
+      "qty": 352,
+      "unit": "sq ft",
+      "rate": 1,
+      "amount": 352
+     },
+     {
+      "description": "Hallway: paint walls, 2 coats",
+      "qty": 352,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 404.8
+     },
+     {
+      "description": "Master bedroom: paint walls, 2 coats",
+      "qty": 393,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 451.95
+     },
+     {
+      "description": "Master bedroom: paint ceiling, 2 coats",
+      "qty": 224,
+      "unit": "sq ft",
+      "rate": 1,
+      "amount": 224
+     },
+     {
+      "description": "Master bedroom: baseboards & trim",
+      "qty": 60,
+      "unit": "lin ft",
+      "rate": 1.5,
+      "amount": 90
+     },
+     {
+      "description": "Master bedroom: doors & frames",
+      "qty": 2,
+      "unit": "door",
+      "rate": 65,
+      "amount": 130
+     },
+     {
+      "description": "Master bedroom: window casings",
+      "qty": 3,
+      "unit": "window",
+      "rate": 45,
+      "amount": 135
+     }
+    ],
+    "taxPct": 0,
+    "notes": [],
+    "paintByCustomer": true
+   },
+   "share_token": "DemoHenderson5d8",
+   "accepted_name": null,
+   "accepted_at": null,
+   "first_viewed_at": "2026-10-28T10:00:00.000Z",
+   "last_viewed_at": "2026-10-28T10:00:00.000Z",
+   "view_count": 1
+  },
+  {
+   "id": "demo-09",
+   "number": "Q-1009",
+   "status": "won",
+   "data": {
+    "id": "demo-09",
+    "number": "Q-1009",
+    "createdAt": "2026-10-31T03:58:24.000Z",
+    "status": "won",
+    "transcript": "Job for Mike Chen. Two kids bedrooms, roughly 11 by 12 each, walls ceilings and trim, light patching. Upstairs bathroom, walls only, about 8 by 9, there's some water damage on the wall near the shower so that needs real repair. Homeowner is buying the paint.",
+    "extractor": "parser",
+    "job": {
+     "customerName": "Mike Chen",
+     "address": "",
+     "customerPhone": "",
+     "customerEmail": "",
+     "rooms": [
+      {
+       "id": "r1",
+       "name": "Kid's bedroom 1",
+       "type": "kids_bedroom",
+       "lengthFt": 12,
+       "widthFt": 11,
+       "heightFt": 8,
+       "walls": true,
+       "ceiling": true,
+       "trim": true,
+       "doors": 0,
+       "windows": 0,
+       "prep": "light",
+       "wallpaper": false,
+       "wallpaperBorder": false,
+       "colorChange": false,
+       "coats": 2
+      },
+      {
+       "id": "r2",
+       "name": "Kid's bedroom 2",
+       "type": "kids_bedroom",
+       "lengthFt": 12,
+       "widthFt": 11,
+       "heightFt": 8,
+       "walls": true,
+       "ceiling": true,
+       "trim": true,
+       "doors": 0,
+       "windows": 0,
+       "prep": "light",
+       "wallpaper": false,
+       "wallpaperBorder": false,
+       "colorChange": false,
+       "coats": 2
+      },
+      {
+       "id": "r3",
+       "name": "Upstairs bathroom",
+       "type": "bathroom",
+       "lengthFt": 9,
+       "widthFt": 8,
+       "heightFt": 8,
+       "walls": true,
+       "ceiling": false,
+       "trim": false,
+       "doors": 0,
+       "windows": 0,
+       "prep": "heavy",
+       "wallpaper": false,
+       "wallpaperBorder": false,
+       "colorChange": false,
+       "coats": 2
+      }
+     ],
+     "paintIncluded": false,
+     "notes": [],
+     "assumptions": [
+      "Upstairs bathroom: only 85% of wall area counted (cabinets, tile, fixtures).",
+      "Ceiling height not mentioned, assumed 8 ft.",
+      "Number of coats not mentioned, assumed 2."
+     ]
+    },
+    "aiLineItems": [
+     {
+      "key": "r1:prep",
+      "description": "Kid's bedroom 1: patch holes & surface prep",
+      "qty": 1,
+      "unit": "room",
+      "rate": 60,
+      "amount": 60
+     },
+     {
+      "key": "r1:walls",
+      "description": "Kid's bedroom 1: paint walls, 2 coats",
+      "qty": 368,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 423.2
+     },
+     {
+      "key": "r1:ceiling",
+      "description": "Kid's bedroom 1: paint ceiling, 2 coats",
+      "qty": 132,
+      "unit": "sq ft",
+      "rate": 1,
+      "amount": 132
+     },
+     {
+      "key": "r1:trim",
+      "description": "Kid's bedroom 1: baseboards & trim",
+      "qty": 46,
+      "unit": "lin ft",
+      "rate": 1.5,
+      "amount": 69
+     },
+     {
+      "key": "r2:prep",
+      "description": "Kid's bedroom 2: patch holes & surface prep",
+      "qty": 1,
+      "unit": "room",
+      "rate": 60,
+      "amount": 60
+     },
+     {
+      "key": "r2:walls",
+      "description": "Kid's bedroom 2: paint walls, 2 coats",
+      "qty": 368,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 423.2
+     },
+     {
+      "key": "r2:ceiling",
+      "description": "Kid's bedroom 2: paint ceiling, 2 coats",
+      "qty": 132,
+      "unit": "sq ft",
+      "rate": 1,
+      "amount": 132
+     },
+     {
+      "key": "r2:trim",
+      "description": "Kid's bedroom 2: baseboards & trim",
+      "qty": 46,
+      "unit": "lin ft",
+      "rate": 1.5,
+      "amount": 69
+     },
+     {
+      "key": "r3:prep",
+      "description": "Upstairs bathroom: drywall repair & surface prep",
+      "qty": 1,
+      "unit": "room",
+      "rate": 180,
+      "amount": 180
+     },
+     {
+      "key": "r3:walls",
+      "description": "Upstairs bathroom: paint walls, 2 coats",
+      "qty": 231,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 265.65
+     }
+    ],
+    "lineItems": [
+     {
+      "key": "r1:prep",
+      "description": "Kid's bedroom 1: patch holes & surface prep",
+      "qty": 1,
+      "unit": "room",
+      "rate": 60,
+      "amount": 60
+     },
+     {
+      "key": "r1:walls",
+      "description": "Kid's bedroom 1: paint walls, 2 coats",
+      "qty": 368,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 423.2
+     },
+     {
+      "key": "r1:ceiling",
+      "description": "Kid's bedroom 1: paint ceiling, 2 coats",
+      "qty": 132,
+      "unit": "sq ft",
+      "rate": 1,
+      "amount": 132
+     },
+     {
+      "key": "r1:trim",
+      "description": "Kid's bedroom 1: baseboards & trim",
+      "qty": 46,
+      "unit": "lin ft",
+      "rate": 1.5,
+      "amount": 69
+     },
+     {
+      "key": "r2:prep",
+      "description": "Kid's bedroom 2: patch holes & surface prep",
+      "qty": 1,
+      "unit": "room",
+      "rate": 60,
+      "amount": 60
+     },
+     {
+      "key": "r2:walls",
+      "description": "Kid's bedroom 2: paint walls, 2 coats",
+      "qty": 368,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 423.2
+     },
+     {
+      "key": "r2:ceiling",
+      "description": "Kid's bedroom 2: paint ceiling, 2 coats",
+      "qty": 132,
+      "unit": "sq ft",
+      "rate": 1,
+      "amount": 132
+     },
+     {
+      "key": "r2:trim",
+      "description": "Kid's bedroom 2: baseboards & trim",
+      "qty": 46,
+      "unit": "lin ft",
+      "rate": 1.5,
+      "amount": 69
+     },
+     {
+      "key": "r3:prep",
+      "description": "Upstairs bathroom: drywall repair & surface prep",
+      "qty": 1,
+      "unit": "room",
+      "rate": 180,
+      "amount": 180
+     },
+     {
+      "key": "r3:walls",
+      "description": "Upstairs bathroom: paint walls, 2 coats",
+      "qty": 231,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 265.65
+     }
+    ],
+    "captureStartedAt": "2026-10-31T03:58:24.000Z",
+    "finalizedAt": "2026-10-31T04:00:00.000Z",
+    "decidedAt": "2026-11-01T05:00:00.000Z",
+    "shareToken": "DemoAccepted7Kq2"
+   },
+   "shared": {
+    "v": 1,
+    "number": "Q-1009",
+    "date": "2026-10-31T04:00:00.000Z",
+    "business": {
+     "name": "Brightline Painting (Demo)",
+     "phone": "(555) 010-0142",
+     "email": "demo@example.com",
+     "license": "DEMO-0001",
+     "validDays": 30
+    },
+    "customerName": "Mike Chen",
+    "address": "",
+    "lineItems": [
+     {
+      "description": "Kid's bedroom 1: patch holes & surface prep",
+      "qty": 1,
+      "unit": "room",
+      "rate": 60,
+      "amount": 60
+     },
+     {
+      "description": "Kid's bedroom 1: paint walls, 2 coats",
+      "qty": 368,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 423.2
+     },
+     {
+      "description": "Kid's bedroom 1: paint ceiling, 2 coats",
+      "qty": 132,
+      "unit": "sq ft",
+      "rate": 1,
+      "amount": 132
+     },
+     {
+      "description": "Kid's bedroom 1: baseboards & trim",
+      "qty": 46,
+      "unit": "lin ft",
+      "rate": 1.5,
+      "amount": 69
+     },
+     {
+      "description": "Kid's bedroom 2: patch holes & surface prep",
+      "qty": 1,
+      "unit": "room",
+      "rate": 60,
+      "amount": 60
+     },
+     {
+      "description": "Kid's bedroom 2: paint walls, 2 coats",
+      "qty": 368,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 423.2
+     },
+     {
+      "description": "Kid's bedroom 2: paint ceiling, 2 coats",
+      "qty": 132,
+      "unit": "sq ft",
+      "rate": 1,
+      "amount": 132
+     },
+     {
+      "description": "Kid's bedroom 2: baseboards & trim",
+      "qty": 46,
+      "unit": "lin ft",
+      "rate": 1.5,
+      "amount": 69
+     },
+     {
+      "description": "Upstairs bathroom: drywall repair & surface prep",
+      "qty": 1,
+      "unit": "room",
+      "rate": 180,
+      "amount": 180
+     },
+     {
+      "description": "Upstairs bathroom: paint walls, 2 coats",
+      "qty": 231,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 265.65
+     }
+    ],
+    "taxPct": 0,
+    "notes": [],
+    "paintByCustomer": true
+   },
+   "share_token": "DemoAccepted7Kq2",
+   "accepted_name": "Mike Chen",
+   "accepted_at": "2026-11-01T05:00:00.000Z",
+   "first_viewed_at": "2026-10-31T14:00:00.000Z",
+   "last_viewed_at": "2026-11-01T04:00:00.000Z",
+   "view_count": 3
+  },
+  {
+   "id": "demo-10",
+   "number": "Q-1010",
+   "status": "sent",
+   "data": {
+    "id": "demo-10",
+    "number": "Q-1010",
+    "createdAt": "2026-10-31T07:58:36.000Z",
+    "status": "sent",
+    "transcript": "Quote for Dan Miller at 18 Birch Lane. Just the one bedroom, twelve by fourteen, walls only, ceiling and trim are staying as is. Couple nail holes. Going from beige to a light gray. We're supplying the paint.",
+    "extractor": "parser",
+    "job": {
+     "customerName": "Dan Miller",
+     "address": "18 Birch Lane",
+     "customerPhone": "",
+     "customerEmail": "",
+     "rooms": [
+      {
+       "id": "r1",
+       "name": "Bedroom",
+       "type": "bedroom",
+       "lengthFt": 14,
+       "widthFt": 12,
+       "heightFt": 8,
+       "walls": true,
+       "ceiling": false,
+       "trim": false,
+       "doors": 0,
+       "windows": 0,
+       "prep": "light",
+       "wallpaper": false,
+       "wallpaperBorder": false,
+       "colorChange": false,
+       "coats": 2
+      }
+     ],
+     "paintIncluded": true,
+     "notes": [],
+     "assumptions": [
+      "Ceiling height not mentioned, assumed 8 ft.",
+      "Number of coats not mentioned, assumed 2."
+     ]
+    },
+    "aiLineItems": [
+     {
+      "key": "r1:prep",
+      "description": "Bedroom: patch holes & surface prep",
+      "qty": 1,
+      "unit": "room",
+      "rate": 60,
+      "amount": 60
+     },
+     {
+      "key": "r1:walls",
+      "description": "Bedroom: paint walls, 2 coats",
+      "qty": 416,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 478.4
+     },
+     {
+      "key": "job:paint",
+      "description": "Paint & materials (premium interior paint, sundries)",
+      "qty": 3,
+      "unit": "gal",
+      "rate": 48,
+      "amount": 144
+     }
+    ],
+    "lineItems": [
+     {
+      "key": "r1:prep",
+      "description": "Bedroom: patch holes & surface prep",
+      "qty": 1,
+      "unit": "room",
+      "rate": 60,
+      "amount": 60
+     },
+     {
+      "key": "r1:walls",
+      "description": "Bedroom: paint walls, 2 coats",
+      "qty": 416,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 478.4
+     },
+     {
+      "key": "job:paint",
+      "description": "Paint & materials (premium interior paint, sundries)",
+      "qty": 3,
+      "unit": "gal",
+      "rate": 48,
+      "amount": 144
+     }
+    ],
+    "captureStartedAt": "2026-10-31T07:58:36.000Z",
+    "finalizedAt": "2026-10-31T08:00:00.000Z",
+    "shareToken": "DemoMiller4Fh9Lx"
+   },
+   "shared": {
+    "v": 1,
+    "number": "Q-1010",
+    "date": "2026-10-31T08:00:00.000Z",
+    "business": {
+     "name": "Brightline Painting (Demo)",
+     "phone": "(555) 010-0142",
+     "email": "demo@example.com",
+     "license": "DEMO-0001",
+     "validDays": 30
+    },
+    "customerName": "Dan Miller",
+    "address": "18 Birch Lane",
+    "lineItems": [
+     {
+      "description": "Bedroom: patch holes & surface prep",
+      "qty": 1,
+      "unit": "room",
+      "rate": 60,
+      "amount": 60
+     },
+     {
+      "description": "Bedroom: paint walls, 2 coats",
+      "qty": 416,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 478.4
+     },
+     {
+      "description": "Paint & materials (premium interior paint, sundries)",
+      "qty": 3,
+      "unit": "gal",
+      "rate": 48,
+      "amount": 144
+     }
+    ],
+    "taxPct": 0,
+    "notes": [],
+    "paintByCustomer": false
+   },
+   "share_token": "DemoMiller4Fh9Lx",
+   "accepted_name": null,
+   "accepted_at": null,
+   "first_viewed_at": "2026-11-01T08:00:00.000Z",
+   "last_viewed_at": "2026-11-01T08:00:00.000Z",
+   "view_count": 1
+  },
+  {
+   "id": "demo-11",
+   "number": "Q-1011",
+   "status": "sent",
+   "data": {
+    "id": "demo-11",
+    "number": "Q-1011",
+    "createdAt": "2026-11-01T06:58:06.000Z",
+    "status": "sent",
+    "transcript": "Quote for Tina Ruiz. Office is fourteen by twelve no wait twelve by twelve, walls and trim. Guest bedroom ten by eleven, walls only.",
+    "extractor": "parser",
+    "job": {
+     "customerName": "Tina Ruiz",
+     "address": "",
+     "customerPhone": "",
+     "customerEmail": "",
+     "rooms": [
+      {
+       "id": "r1",
+       "name": "Office",
+       "type": "office",
+       "lengthFt": 12,
+       "widthFt": 12,
+       "heightFt": 8,
+       "walls": true,
+       "ceiling": false,
+       "trim": true,
+       "doors": 0,
+       "windows": 0,
+       "prep": "none",
+       "wallpaper": false,
+       "wallpaperBorder": false,
+       "colorChange": false,
+       "coats": 2
+      },
+      {
+       "id": "r2",
+       "name": "Guest bedroom",
+       "type": "bedroom",
+       "lengthFt": 11,
+       "widthFt": 10,
+       "heightFt": 8,
+       "walls": true,
+       "ceiling": false,
+       "trim": false,
+       "doors": 0,
+       "windows": 0,
+       "prep": "none",
+       "wallpaper": false,
+       "wallpaperBorder": false,
+       "colorChange": false,
+       "coats": 2
+      }
+     ],
+     "paintIncluded": true,
+     "notes": [],
+     "assumptions": [
+      "Ceiling height not mentioned, assumed 8 ft.",
+      "Number of coats not mentioned, assumed 2.",
+      "Paint supply not mentioned, assumed you supply the paint."
+     ]
+    },
+    "aiLineItems": [
+     {
+      "key": "r1:walls",
+      "description": "Office: paint walls, 2 coats",
+      "qty": 384,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 441.6
+     },
+     {
+      "key": "r1:trim",
+      "description": "Office: baseboards & trim",
+      "qty": 48,
+      "unit": "lin ft",
+      "rate": 1.5,
+      "amount": 72
+     },
+     {
+      "key": "r2:walls",
+      "description": "Guest bedroom: paint walls, 2 coats",
+      "qty": 336,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 386.4
+     },
+     {
+      "key": "job:paint",
+      "description": "Paint & materials (premium interior paint, sundries)",
+      "qty": 6,
+      "unit": "gal",
+      "rate": 48,
+      "amount": 288
+     }
+    ],
+    "lineItems": [
+     {
+      "key": "r1:walls",
+      "description": "Office: paint walls, 2 coats",
+      "qty": 384,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 441.6
+     },
+     {
+      "key": "r1:trim",
+      "description": "Office: baseboards & trim",
+      "qty": 48,
+      "unit": "lin ft",
+      "rate": 1.5,
+      "amount": 72
+     },
+     {
+      "key": "r2:walls",
+      "description": "Guest bedroom: paint walls, 2 coats",
+      "qty": 336,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 386.4
+     },
+     {
+      "key": "job:paint",
+      "description": "Paint & materials (premium interior paint, sundries)",
+      "qty": 6,
+      "unit": "gal",
+      "rate": 48,
+      "amount": 288
+     }
+    ],
+    "captureStartedAt": "2026-11-01T06:58:06.000Z",
+    "finalizedAt": "2026-11-01T07:00:00.000Z",
+    "shareToken": "DemoRuizTry2Acpt"
+   },
+   "shared": {
+    "v": 1,
+    "number": "Q-1011",
+    "date": "2026-11-01T07:00:00.000Z",
+    "business": {
+     "name": "Brightline Painting (Demo)",
+     "phone": "(555) 010-0142",
+     "email": "demo@example.com",
+     "license": "DEMO-0001",
+     "validDays": 30
+    },
+    "customerName": "Tina Ruiz",
+    "address": "",
+    "lineItems": [
+     {
+      "description": "Office: paint walls, 2 coats",
+      "qty": 384,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 441.6
+     },
+     {
+      "description": "Office: baseboards & trim",
+      "qty": 48,
+      "unit": "lin ft",
+      "rate": 1.5,
+      "amount": 72
+     },
+     {
+      "description": "Guest bedroom: paint walls, 2 coats",
+      "qty": 336,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 386.4
+     },
+     {
+      "description": "Paint & materials (premium interior paint, sundries)",
+      "qty": 6,
+      "unit": "gal",
+      "rate": 48,
+      "amount": 288
+     }
+    ],
+    "taxPct": 0,
+    "notes": [],
+    "paintByCustomer": false
+   },
+   "share_token": "DemoRuizTry2Acpt",
+   "accepted_name": null,
+   "accepted_at": null,
+   "first_viewed_at": null,
+   "last_viewed_at": null,
+   "view_count": 0
+  },
+  {
+   "id": "demo-12",
+   "number": "Q-1012",
+   "status": "draft",
+   "data": {
+    "id": "demo-12",
+    "number": "Q-1012",
+    "createdAt": "2026-11-01T08:59:12.000Z",
+    "status": "draft",
+    "transcript": "Alright this one's for Karen Walsh over on 77 Elm Street. Pretty big job. The whole house needs some light patching, nail holes mostly. Living room fifteen by eighteen walls and ceiling. Dining room twelve by twelve walls and trim. Kitchen walls only, cabinets stay. There's a little powder room off the kitchen, do the walls and ceiling in there and it's got some water damage so real repair. Hallway is three and a half by twenty, walls only, three doors along it. Then upstairs, master bedroom fourteen by sixteen walls ceiling trim. Two more bedrooms about eleven by twelve each, walls only. Ceilings are eight foot throughout. We are doing the paint.",
+    "extractor": "parser",
+    "job": {
+     "customerName": "Karen Walsh",
+     "address": "77 Elm Street",
+     "customerPhone": "",
+     "customerEmail": "",
+     "rooms": [
+      {
+       "id": "r1",
+       "name": "Living room",
+       "type": "living_room",
+       "lengthFt": 18,
+       "widthFt": 15,
+       "heightFt": 8,
+       "walls": true,
+       "ceiling": true,
+       "trim": false,
+       "doors": 0,
+       "windows": 0,
+       "prep": "light",
+       "wallpaper": false,
+       "wallpaperBorder": false,
+       "colorChange": false,
+       "coats": 2
+      },
+      {
+       "id": "r2",
+       "name": "Dining room",
+       "type": "dining_room",
+       "lengthFt": 12,
+       "widthFt": 12,
+       "heightFt": 8,
+       "walls": true,
+       "ceiling": false,
+       "trim": true,
+       "doors": 0,
+       "windows": 0,
+       "prep": "light",
+       "wallpaper": false,
+       "wallpaperBorder": false,
+       "colorChange": false,
+       "coats": 2
+      },
+      {
+       "id": "r3",
+       "name": "Kitchen",
+       "type": "kitchen",
+       "lengthFt": 14,
+       "widthFt": 12,
+       "heightFt": 8,
+       "walls": true,
+       "ceiling": false,
+       "trim": false,
+       "doors": 0,
+       "windows": 0,
+       "prep": "light",
+       "wallpaper": false,
+       "wallpaperBorder": false,
+       "colorChange": false,
+       "coats": 2
+      },
+      {
+       "id": "r4",
+       "name": "Powder room",
+       "type": "powder_room",
+       "lengthFt": 6,
+       "widthFt": 5,
+       "heightFt": 8,
+       "walls": true,
+       "ceiling": true,
+       "trim": false,
+       "doors": 0,
+       "windows": 0,
+       "prep": "heavy",
+       "wallpaper": false,
+       "wallpaperBorder": false,
+       "colorChange": false,
+       "coats": 2
+      },
+      {
+       "id": "r5",
+       "name": "Hallway",
+       "type": "hallway",
+       "lengthFt": 20,
+       "widthFt": 3.5,
+       "heightFt": 8,
+       "walls": true,
+       "ceiling": false,
+       "trim": false,
+       "doors": 3,
+       "windows": 0,
+       "prep": "light",
+       "wallpaper": false,
+       "wallpaperBorder": false,
+       "colorChange": false,
+       "coats": 2
+      },
+      {
+       "id": "r6",
+       "name": "Master bedroom",
+       "type": "master_bedroom",
+       "lengthFt": 16,
+       "widthFt": 14,
+       "heightFt": 8,
+       "walls": true,
+       "ceiling": true,
+       "trim": true,
+       "doors": 0,
+       "windows": 0,
+       "prep": "light",
+       "wallpaper": false,
+       "wallpaperBorder": false,
+       "colorChange": false,
+       "coats": 2
+      },
+      {
+       "id": "r7",
+       "name": "Bedroom 1",
+       "type": "bedroom",
+       "lengthFt": 12,
+       "widthFt": 11,
+       "heightFt": 8,
+       "walls": true,
+       "ceiling": false,
+       "trim": false,
+       "doors": 0,
+       "windows": 0,
+       "prep": "light",
+       "wallpaper": false,
+       "wallpaperBorder": false,
+       "colorChange": false,
+       "coats": 2
+      },
+      {
+       "id": "r8",
+       "name": "Bedroom 2",
+       "type": "bedroom",
+       "lengthFt": 12,
+       "widthFt": 11,
+       "heightFt": 8,
+       "walls": true,
+       "ceiling": false,
+       "trim": false,
+       "doors": 0,
+       "windows": 0,
+       "prep": "light",
+       "wallpaper": false,
+       "wallpaperBorder": false,
+       "colorChange": false,
+       "coats": 2
+      }
+     ],
+     "paintIncluded": true,
+     "notes": [
+      "Cabinets stay"
+     ],
+     "assumptions": [
+      "Kitchen: size not mentioned, assumed a typical 14 × 12 ft.",
+      "Kitchen: only 60% of wall area counted (cabinets, tile, fixtures).",
+      "Powder room: size not mentioned, assumed a typical 6 × 5 ft.",
+      "Number of coats not mentioned, assumed 2."
+     ]
+    },
+    "aiLineItems": [
+     {
+      "key": "r1:prep",
+      "description": "Living room: patch holes & surface prep",
+      "qty": 1,
+      "unit": "room",
+      "rate": 60,
+      "amount": 60
+     },
+     {
+      "key": "r1:walls",
+      "description": "Living room: paint walls, 2 coats",
+      "qty": 528,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 607.2
+     },
+     {
+      "key": "r1:ceiling",
+      "description": "Living room: paint ceiling, 2 coats",
+      "qty": 270,
+      "unit": "sq ft",
+      "rate": 1,
+      "amount": 270
+     },
+     {
+      "key": "r2:prep",
+      "description": "Dining room: patch holes & surface prep",
+      "qty": 1,
+      "unit": "room",
+      "rate": 60,
+      "amount": 60
+     },
+     {
+      "key": "r2:walls",
+      "description": "Dining room: paint walls, 2 coats",
+      "qty": 384,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 441.6
+     },
+     {
+      "key": "r2:trim",
+      "description": "Dining room: baseboards & trim",
+      "qty": 48,
+      "unit": "lin ft",
+      "rate": 1.5,
+      "amount": 72
+     },
+     {
+      "key": "r3:prep",
+      "description": "Kitchen: patch holes & surface prep",
+      "qty": 1,
+      "unit": "room",
+      "rate": 60,
+      "amount": 60
+     },
+     {
+      "key": "r3:walls",
+      "description": "Kitchen: paint walls, 2 coats",
+      "qty": 250,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 287.5
+     },
+     {
+      "key": "r4:prep",
+      "description": "Powder room: drywall repair & surface prep",
+      "qty": 1,
+      "unit": "room",
+      "rate": 180,
+      "amount": 180
+     },
+     {
+      "key": "r4:walls",
+      "description": "Powder room: paint walls, 2 coats",
+      "qty": 176,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 202.4
+     },
+     {
+      "key": "r4:ceiling",
+      "description": "Powder room: paint ceiling, 2 coats",
+      "qty": 30,
+      "unit": "sq ft",
+      "rate": 1,
+      "amount": 30
+     },
+     {
+      "key": "r5:prep",
+      "description": "Hallway: patch holes & surface prep",
+      "qty": 1,
+      "unit": "room",
+      "rate": 60,
+      "amount": 60
+     },
+     {
+      "key": "r5:walls",
+      "description": "Hallway: paint walls, 2 coats",
+      "qty": 313,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 359.95
+     },
+     {
+      "key": "r5:doors",
+      "description": "Hallway: doors & frames",
+      "qty": 3,
+      "unit": "door",
+      "rate": 65,
+      "amount": 195
+     },
+     {
+      "key": "r6:prep",
+      "description": "Master bedroom: patch holes & surface prep",
+      "qty": 1,
+      "unit": "room",
+      "rate": 60,
+      "amount": 60
+     },
+     {
+      "key": "r6:walls",
+      "description": "Master bedroom: paint walls, 2 coats",
+      "qty": 480,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 552
+     },
+     {
+      "key": "r6:ceiling",
+      "description": "Master bedroom: paint ceiling, 2 coats",
+      "qty": 224,
+      "unit": "sq ft",
+      "rate": 1,
+      "amount": 224
+     },
+     {
+      "key": "r6:trim",
+      "description": "Master bedroom: baseboards & trim",
+      "qty": 60,
+      "unit": "lin ft",
+      "rate": 1.5,
+      "amount": 90
+     },
+     {
+      "key": "r7:prep",
+      "description": "Bedroom 1: patch holes & surface prep",
+      "qty": 1,
+      "unit": "room",
+      "rate": 60,
+      "amount": 60
+     },
+     {
+      "key": "r7:walls",
+      "description": "Bedroom 1: paint walls, 2 coats",
+      "qty": 368,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 423.2
+     },
+     {
+      "key": "r8:prep",
+      "description": "Bedroom 2: patch holes & surface prep",
+      "qty": 1,
+      "unit": "room",
+      "rate": 60,
+      "amount": 60
+     },
+     {
+      "key": "r8:walls",
+      "description": "Bedroom 2: paint walls, 2 coats",
+      "qty": 368,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 423.2
+     },
+     {
+      "key": "job:paint",
+      "description": "Paint & materials (premium interior paint, sundries)",
+      "qty": 21,
+      "unit": "gal",
+      "rate": 48,
+      "amount": 1008
+     }
+    ],
+    "lineItems": [
+     {
+      "key": "r1:prep",
+      "description": "Living room: patch holes & surface prep",
+      "qty": 1,
+      "unit": "room",
+      "rate": 60,
+      "amount": 60
+     },
+     {
+      "key": "r1:walls",
+      "description": "Living room: paint walls, 2 coats",
+      "qty": 528,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 607.2
+     },
+     {
+      "key": "r1:ceiling",
+      "description": "Living room: paint ceiling, 2 coats",
+      "qty": 270,
+      "unit": "sq ft",
+      "rate": 1,
+      "amount": 270
+     },
+     {
+      "key": "r2:prep",
+      "description": "Dining room: patch holes & surface prep",
+      "qty": 1,
+      "unit": "room",
+      "rate": 60,
+      "amount": 60
+     },
+     {
+      "key": "r2:walls",
+      "description": "Dining room: paint walls, 2 coats",
+      "qty": 384,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 441.6
+     },
+     {
+      "key": "r2:trim",
+      "description": "Dining room: baseboards & trim",
+      "qty": 48,
+      "unit": "lin ft",
+      "rate": 1.5,
+      "amount": 72
+     },
+     {
+      "key": "r3:prep",
+      "description": "Kitchen: patch holes & surface prep",
+      "qty": 1,
+      "unit": "room",
+      "rate": 60,
+      "amount": 60
+     },
+     {
+      "key": "r3:walls",
+      "description": "Kitchen: paint walls, 2 coats",
+      "qty": 250,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 287.5
+     },
+     {
+      "key": "r4:prep",
+      "description": "Powder room: drywall repair & surface prep",
+      "qty": 1,
+      "unit": "room",
+      "rate": 180,
+      "amount": 180
+     },
+     {
+      "key": "r4:walls",
+      "description": "Powder room: paint walls, 2 coats",
+      "qty": 176,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 202.4
+     },
+     {
+      "key": "r4:ceiling",
+      "description": "Powder room: paint ceiling, 2 coats",
+      "qty": 30,
+      "unit": "sq ft",
+      "rate": 1,
+      "amount": 30
+     },
+     {
+      "key": "r5:prep",
+      "description": "Hallway: patch holes & surface prep",
+      "qty": 1,
+      "unit": "room",
+      "rate": 60,
+      "amount": 60
+     },
+     {
+      "key": "r5:walls",
+      "description": "Hallway: paint walls, 2 coats",
+      "qty": 313,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 359.95
+     },
+     {
+      "key": "r5:doors",
+      "description": "Hallway: doors & frames",
+      "qty": 3,
+      "unit": "door",
+      "rate": 65,
+      "amount": 195
+     },
+     {
+      "key": "r6:prep",
+      "description": "Master bedroom: patch holes & surface prep",
+      "qty": 1,
+      "unit": "room",
+      "rate": 60,
+      "amount": 60
+     },
+     {
+      "key": "r6:walls",
+      "description": "Master bedroom: paint walls, 2 coats",
+      "qty": 480,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 552
+     },
+     {
+      "key": "r6:ceiling",
+      "description": "Master bedroom: paint ceiling, 2 coats",
+      "qty": 224,
+      "unit": "sq ft",
+      "rate": 1,
+      "amount": 224
+     },
+     {
+      "key": "r6:trim",
+      "description": "Master bedroom: baseboards & trim",
+      "qty": 60,
+      "unit": "lin ft",
+      "rate": 1.5,
+      "amount": 90
+     },
+     {
+      "key": "r7:prep",
+      "description": "Bedroom 1: patch holes & surface prep",
+      "qty": 1,
+      "unit": "room",
+      "rate": 60,
+      "amount": 60
+     },
+     {
+      "key": "r7:walls",
+      "description": "Bedroom 1: paint walls, 2 coats",
+      "qty": 368,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 423.2
+     },
+     {
+      "key": "r8:prep",
+      "description": "Bedroom 2: patch holes & surface prep",
+      "qty": 1,
+      "unit": "room",
+      "rate": 60,
+      "amount": 60
+     },
+     {
+      "key": "r8:walls",
+      "description": "Bedroom 2: paint walls, 2 coats",
+      "qty": 368,
+      "unit": "sq ft",
+      "rate": 1.15,
+      "amount": 423.2
+     },
+     {
+      "key": "job:paint",
+      "description": "Paint & materials (premium interior paint, sundries)",
+      "qty": 21,
+      "unit": "gal",
+      "rate": 48,
+      "amount": 1008
+     }
+    ],
+    "captureStartedAt": "2026-11-01T08:59:12.000Z"
+   },
+   "shared": null,
+   "share_token": null,
+   "accepted_name": null,
+   "accepted_at": null,
+   "first_viewed_at": null,
+   "last_viewed_at": null,
+   "view_count": 0
+  }
+ ]
+}
