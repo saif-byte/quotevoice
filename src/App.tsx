@@ -1,5 +1,6 @@
 import { NavLink, Outlet, RouterProvider, createHashRouter, useParams } from 'react-router-dom'
 import { AccountMenu } from './components/AccountMenu'
+import { Onboarding } from './components/Onboarding'
 import { LiveAlerts, NotificationBell } from './components/Notifications'
 import { Account } from './pages/Account'
 import { Dashboard } from './pages/Dashboard'
@@ -109,6 +110,7 @@ function Shell() {
         <Outlet />
       </main>
       <LiveAlerts />
+      <Onboarding />
     </div>
   )
 }

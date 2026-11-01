@@ -6,7 +6,7 @@ const SYNC_LABEL = { local: '', loading: 'Loading…', synced: 'All changes save
 
 /** Signed-in painter's menu in the top bar: who's signed in, sync status, and Sign out. */
 export function AccountMenu() {
-  const { user, sync, retrySync, signOut } = useStore()
+  const { user, sync, retrySync, signOut, openOnboarding } = useStore()
   const navigate = useNavigate()
   const [open, setOpen] = useState(false)
   const [busy, setBusy] = useState(false)
@@ -63,6 +63,16 @@ export function AccountMenu() {
           <Link to="/settings" role="menuitem" onClick={() => setOpen(false)}>
             Business details & rates
           </Link>
+          <button
+            type="button"
+            role="menuitem"
+            onClick={() => {
+              setOpen(false)
+              openOnboarding()
+            }}
+          >
+            Setup guide
+          </button>
           <button
             type="button"
             role="menuitem"

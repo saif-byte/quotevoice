@@ -69,13 +69,15 @@ export interface CloudData {
   business: Partial<BusinessInfo> | null
   rates: Partial<RateCard> | null
   notificationsSeenAt: string | null
+  /** When the first-sign-in walkthrough was finished or skipped. null = not yet. */
+  onboardedAt: string | null
 }
 
 export async function fetchAccount(): Promise<CloudData> {
   const db = client()
   const [quotesRes, profileRes] = await Promise.all([
     db.from('quotes').select('id, number, status, data, shared, share_token, accepted_name, accepted_at, first_viewed_at, last_viewed_at, view_count').order('created_at', { ascending: false }),
-    db.from('profiles').select('business, rates, notifications_seen_at').maybeSingle(),
+    db.from('profiles').select('business, rates, notifications_seen_at, onboarded_at').maybeSingle(),
   ])
   if (quotesRes.error) throw quotesRes.error
   if (profileRes.error) throw profileRes.error
@@ -86,6 +88,7 @@ export async function fetchAccount(): Promise<CloudData> {
     business: hasBusiness ? (profileRes.data!.business as Partial<BusinessInfo>) : null,
     rates: hasRates ? (profileRes.data!.rates as Partial<RateCard>) : null,
     notificationsSeenAt: (profileRes.data?.notifications_seen_at as string | null) ?? null,
+    onboardedAt: (profileRes.data?.onboarded_at as string | null) ?? null,
   }
 }
 
@@ -105,6 +108,11 @@ export async function saveProfileRemote(userId: string, settings: Settings): Pro
   const { error } = await client()
     .from('profiles')
     .upsert({ user_id: userId, business: settings.business, rates: settings.rates, updated_at: new Date().toISOString() })
+  if (error) throw error
+}
+
+export async function markOnboardedRemote(userId: string, at: string | null): Promise<void> {
+  const { error } = await client().from('profiles').update({ onboarded_at: at }).eq('user_id', userId)
   if (error) throw error
 }
 

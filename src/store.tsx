@@ -3,6 +3,7 @@ import {
   deleteQuoteRemote,
   fetchAccount,
   markNotificationsSeenRemote,
+  markOnboardedRemote,
   newShareToken,
   saveProfileRemote,
   saveQuotesRemote,
@@ -58,6 +59,10 @@ interface StoreApi {
   alerts: QuoteEvent[]
   dismissAlert: (id: string) => void
   liveConnected: boolean
+  // first-sign-in walkthrough
+  showOnboarding: boolean
+  finishOnboarding: () => void
+  openOnboarding: () => void
 }
 
 const StoreContext = createContext<StoreApi | null>(null)
@@ -77,6 +82,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [notificationsSeenAt, setNotificationsSeenAt] = useState<string | null>(null)
   const [alerts, setAlerts] = useState<QuoteEvent[]>([])
   const [liveConnected, setLiveConnected] = useState(false)
+  // undefined = not known yet (still loading); null = never done; string = done at
+  const [onboardedAt, setOnboardedAt] = useState<string | null | undefined>(undefined)
+  const [guideOpen, setGuideOpen] = useState(false)
   const keyRef = useRef(storageKey(null))
   const dataRef = useRef(data)
   dataRef.current = data
@@ -124,6 +132,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       // Anything accepted or opened since the last check pops up as a live alert.
       if (!firstLoad) pushAlerts(newEvents(dataRef.current.quotes, remote.quotes, dataRef.current.settings.rates.taxPct))
       setNotificationsSeenAt(remote.notificationsSeenAt)
+      setOnboardedAt(remote.onboardedAt)
       const settings: Settings = {
         business: { ...DEFAULT_SETTINGS.business, ...(remote.business ?? device.settings.business) },
         rates: { ...DEFAULT_SETTINGS.rates, ...(remote.rates ?? device.settings.rates) },
@@ -153,6 +162,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       setDeviceQuotes([])
       setAlerts([])
       setNotificationsSeenAt(null)
+      setOnboardedAt(undefined)
+      setGuideOpen(false)
       return
     }
     setData(loadStore(key)) // cached copy first, so the app opens instantly
@@ -329,8 +340,19 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       alerts,
       dismissAlert: (id) => setAlerts((a) => a.filter((x) => x.id !== id)),
       liveConnected,
+      // Shown automatically the first time an account signs in (once the account has loaded),
+      // and on request from the account menu.
+      showOnboarding: Boolean(user) && (guideOpen || onboardedAt === null),
+      finishOnboarding: () => {
+        setGuideOpen(false)
+        if (!user) return
+        const now = new Date().toISOString()
+        setOnboardedAt(now)
+        void markOnboardedRemote(user.id, now).catch(() => undefined)
+      },
+      openOnboarding: () => setGuideOpen(true),
     }),
-    [data, saveQuote, remote, user, authReady, sync, syncError, retrySync, deviceQuotes, loadAccount, notificationsSeenAt, alerts, liveConnected],
+    [data, saveQuote, remote, user, authReady, sync, syncError, retrySync, deviceQuotes, loadAccount, notificationsSeenAt, alerts, liveConnected, onboardedAt, guideOpen],
   )
 
   return <StoreContext.Provider value={api}>{children}</StoreContext.Provider>
