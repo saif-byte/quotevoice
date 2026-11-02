@@ -160,7 +160,7 @@ export function Recruiters() {
             alt="QuoteVoice product journey map: ten stages (discover, validate, scope, prioritize, architect, database, quality, add features, user test, ship), why this tech stack, and how it's kept secure"
             loading="lazy"
             width={1600}
-            height={1413}
+            height={1429}
           />
           <span className="rec-zoom">Open full size ↗</span>
         </a>
